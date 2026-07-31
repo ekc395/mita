@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { createClient } from '@/lib/supabase/server';
@@ -36,7 +37,11 @@ export default async function HomePage() {
       </p>
 
       <div className="mt-8 rounded-lg border border-neutral-200 p-6 text-sm text-neutral-500 dark:border-neutral-800">
-        Your feed is empty. Search for something you have watched to start ranking.
+        Your feed is empty.{' '}
+        <Link href="/search" className="underline">
+          Search
+        </Link>{' '}
+        for something you have watched to start ranking.
       </div>
     </main>
   );

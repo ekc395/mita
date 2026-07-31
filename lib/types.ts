@@ -29,6 +29,15 @@ export type RankedAnime = UserAnime & {
   score: number;
 };
 
+/**
+ * Best available display title. AniList frequently has no English title -- of
+ * three Frieren results, one had none -- so romaji is the fallback rather than
+ * an afterthought.
+ */
+export function animeTitle(anime: Pick<Anime, 'title_english' | 'title_romaji'>): string {
+  return anime.title_english ?? anime.title_romaji ?? 'Untitled';
+}
+
 export function isRanked(row: UserAnime): row is RankedAnime {
   return row.sentiment !== null && row.rank_position !== null && row.score !== null;
 }
