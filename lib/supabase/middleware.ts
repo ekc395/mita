@@ -3,6 +3,15 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 import type { Database } from '@/lib/types';
 
+/** Routes reachable without a session -- everything needed to get one. */
+const PUBLIC_ROUTES = ['/login', '/auth'];
+
+function isPublicRoute(pathname: string): boolean {
+  return PUBLIC_ROUTES.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
+  );
+}
+
 /**
  * Refreshes the Supabase session on every request.
  *
@@ -38,7 +47,18 @@ export async function updateSession(request: NextRequest) {
   // Do not put anything between createServerClient and getUser(). This call is
   // what actually performs the refresh, and code in between can cause sessions
   // to be dropped at random and be very hard to debug.
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Every RLS policy is scoped `to authenticated`, so a signed-out visitor
+  // would otherwise reach real pages that silently render nothing. Redirect
+  // instead, and let the auth routes through so signing in stays possible.
+  if (!user && !isPublicRoute(request.nextUrl.pathname)) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    return NextResponse.redirect(url);
+  }
 
   return supabaseResponse;
 }
