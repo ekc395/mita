@@ -61,6 +61,13 @@ export default async function AnimeDetailPage({
           ) : entry ? (
             <p className="mt-3 text-sm text-neutral-500">On your list: {entry.status}</p>
           ) : null}
+
+          <Link
+            href={`/log/${anilistId}`}
+            className="mt-4 inline-block rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white dark:bg-white dark:text-neutral-900"
+          >
+            {entry?.score != null ? 'Re-rank' : 'I watched this'}
+          </Link>
         </div>
       </div>
 
