@@ -1,10 +1,16 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 
 import { getAnime } from '@/lib/anilist';
 import { createClient } from '@/lib/supabase/server';
 import { animeTitle } from '@/lib/types';
+
+/** A followed user's score for this title. */
+interface FriendRank {
+  score: number | null;
+  profiles: { username: string | null; display_name: string | null } | null;
+}
 
 export default async function AnimeDetailPage({
   params,
@@ -19,14 +25,44 @@ export default async function AnimeDetailPage({
   const anime = await getAnime(anilistId);
   if (!anime) notFound();
 
-  // Whether the viewer has already logged this. RLS scopes the read to them,
-  // so no user filter is needed here.
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  // Whether the viewer has already logged this. user_anime is readable for
+  // anyone can_view_user() admits, not just the viewer, so this needs an
+  // explicit user filter or it matches other people's rows too.
   const { data: entry } = await supabase
     .from('user_anime')
     .select('status, score')
     .eq('anilist_id', anilistId)
+    .eq('user_id', user.id)
     .maybeSingle();
+
+  const { data: following } = await supabase
+    .from('follows')
+    .select('following_id')
+    .eq('follower_id', user.id);
+
+  const followingIds = (following ?? []).map((row) => row.following_id);
+
+  const { data: friendRows } = followingIds.length
+    ? await supabase
+        .from('user_anime')
+        .select('score, profiles(username, display_name)')
+        .eq('anilist_id', anilistId)
+        .in('user_id', followingIds)
+        .not('score', 'is', null)
+        .order('score', { ascending: false })
+    : { data: [] };
+
+  const friends = (friendRows ?? []) as unknown as FriendRank[];
+  const friendAverage =
+    friends.length > 0
+      ? friends.reduce((sum, row) => sum + (row.score ?? 0), 0) / friends.length
+      : null;
 
   return (
     <main className="py-8">
@@ -70,6 +106,42 @@ export default async function AnimeDetailPage({
           </Link>
         </div>
       </div>
+
+      {friends.length > 0 && (
+        <section className="mt-8">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+            Friends who ranked this
+            {friendAverage !== null && (
+              <span className="ml-2 font-normal normal-case tracking-normal">
+                · avg {friendAverage.toFixed(1)}
+              </span>
+            )}
+          </h2>
+
+          <ul className="mt-3 space-y-1">
+            {friends.map((friend, index) => (
+              <li
+                key={friend.profiles?.username ?? index}
+                className="flex items-center justify-between text-sm"
+              >
+                {friend.profiles?.username ? (
+                  <Link
+                    href={`/u/${friend.profiles.username}`}
+                    className="font-medium hover:underline"
+                  >
+                    {friend.profiles.display_name ?? `@${friend.profiles.username}`}
+                  </Link>
+                ) : (
+                  <span className="font-medium">Someone</span>
+                )}
+                <span className="font-semibold tabular-nums">
+                  {friend.score?.toFixed(1)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {anime.genres.length > 0 && (
         <p className="mt-6 text-sm text-neutral-500">{anime.genres.join(', ')}</p>

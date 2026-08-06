@@ -1,15 +1,13 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
+import { FeedItem, type FeedActivity } from '@/components/FeedItem';
 import { createClient } from '@/lib/supabase/server';
 
 /**
- * Home feed.
+ * Home feed: activity from the viewer and the people they follow.
  *
- * Currently a placeholder that proves the session round-trips: middleware
- * guarantees a user exists by the time this renders, so anything here is
- * already scoped to them by RLS. The activity feed replaces this once
- * following exists.
+ * Middleware guarantees a user exists by the time this renders.
  */
 export default async function HomePage() {
   const supabase = await createClient();
@@ -29,20 +27,68 @@ export default async function HomePage() {
 
   if (!profile?.username) redirect('/onboarding');
 
+  // The feed is the viewer plus everyone they follow. activity's RLS predicate
+  // is can_view_user(), which also admits every public profile, so without an
+  // explicit user filter this would render a global feed.
+  const { data: following } = await supabase
+    .from('follows')
+    .select('following_id')
+    .eq('follower_id', user.id);
+
+  const authorIds = [user.id, ...(following ?? []).map((row) => row.following_id)];
+
+  const { data: activity } = await supabase
+    .from('activity')
+    .select(
+      'id, type, anilist_id, score, created_at, ' +
+        'actor:profiles!activity_user_id_fkey(username, display_name), ' +
+        'target:profiles!activity_target_user_fkey(username, display_name), ' +
+        'anime(title_english, title_romaji, cover_image_url)',
+    )
+    .in('user_id', authorIds)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  const items = (activity ?? []) as unknown as FeedActivity[];
+
   return (
     <main className="py-8">
-      <h1 className="text-2xl font-semibold">mita</h1>
-      <p className="mt-2 text-sm text-neutral-500">
-        Signed in as <span className="font-medium">@{profile.username}</span>
-      </p>
-
-      <div className="mt-8 rounded-lg border border-neutral-200 p-6 text-sm text-neutral-500 dark:border-neutral-800">
-        Your feed is empty.{' '}
-        <Link href="/search" className="underline">
-          Search
-        </Link>{' '}
-        for something you have watched to start ranking.
+      <div className="flex items-baseline justify-between">
+        <h1 className="text-2xl font-semibold">mita</h1>
+        <div className="flex gap-4 text-sm text-neutral-500">
+          <Link href="/search" className="hover:underline">
+            Search
+          </Link>
+          <Link href="/list" className="hover:underline">
+            Your list
+          </Link>
+          <Link href={`/u/${profile.username}`} className="hover:underline">
+            @{profile.username}
+          </Link>
+        </div>
       </div>
+
+      {items.length === 0 ? (
+        <div className="mt-8 rounded-lg border border-neutral-200 p-6 text-sm text-neutral-500 dark:border-neutral-800">
+          {authorIds.length === 1 ? (
+            <>
+              Your feed is empty.{' '}
+              <Link href="/search" className="underline">
+                Search
+              </Link>{' '}
+              for something you have watched, or find people to follow.
+            </>
+          ) : (
+            'Nobody you follow has done anything yet.'
+          )}
+        </div>
+      ) : (
+        <ul className="mt-6 divide-y divide-neutral-100 dark:divide-neutral-900">
+          {items.map((item) => (
+            <FeedItem key={item.id} activity={item} />
+          ))}
+        </ul>
+      )}
     </main>
   );
 }
