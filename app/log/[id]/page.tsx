@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 
 import { RankingWizard, type BucketEntry } from '@/components/RankingWizard';
 import { getAnime } from '@/lib/anilist';
@@ -25,12 +25,21 @@ export default async function LogPage({ params }: { params: Promise<{ id: string
   const anime = await getAnime(anilistId);
   if (!anime) notFound();
 
-  // The viewer's ranked titles, best first. RLS scopes this to them, and
-  // ordering by rank_position is what the binary search assumes.
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  // The viewer's ranked titles, best first. The user filter is load-bearing:
+  // user_anime is readable for anyone can_view_user() admits, so without it
+  // the buckets below would fill with other people's titles and the wizard
+  // would ask the user to compare against anime they have never logged.
+  // Ordering by rank_position is what the binary search assumes.
   const { data } = await supabase
     .from('user_anime')
     .select('anilist_id, sentiment, anime(title_english, title_romaji, cover_image_url)')
+    .eq('user_id', user.id)
     .not('sentiment', 'is', null)
     .order('rank_position');
 

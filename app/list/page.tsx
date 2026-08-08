@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
 import { createClient } from '@/lib/supabase/server';
 import { animeTitle, type Sentiment } from '@/lib/types';
@@ -19,15 +20,21 @@ interface ListRow {
 
 export default async function ListPage() {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
 
-  // RLS scopes this to the viewer, so no user filter is needed. Ordering by
-  // rank_position gives the ranked block in score order; unranked rows sort
-  // last and are split out below.
+  // user_anime is readable for anyone can_view_user() admits, not just the
+  // viewer, so this needs an explicit user filter or other people's titles are
+  // mixed into the list. Ordering by rank_position gives the ranked block in
+  // score order; unranked rows sort last and are split out below.
   const { data } = await supabase
     .from('user_anime')
     .select(
       'anilist_id, status, sentiment, rank_position, score, anime(title_english, title_romaji, cover_image_url)',
     )
+    .eq('user_id', user.id)
     .order('rank_position', { nullsFirst: false });
 
   const rows = (data ?? []) as ListRow[];
