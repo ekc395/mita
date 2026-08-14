@@ -36,12 +36,16 @@ export default async function LogPage({ params }: { params: Promise<{ id: string
   // the buckets below would fill with other people's titles and the wizard
   // would ask the user to compare against anime they have never logged.
   // Ordering by rank_position is what the binary search assumes.
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('user_anime')
     .select('anilist_id, sentiment, anime(title_english, title_romaji, cover_image_url)')
     .eq('user_id', user.id)
     .not('sentiment', 'is', null)
     .order('rank_position');
+
+  // A swallowed error empties every bucket, which reads as "nothing ranked
+  // yet": the title would land at rank 1 unopposed and silently rescore the list.
+  if (error) throw new Error(`Could not load your ranked titles: ${error.message}`);
 
   const buckets: Record<Sentiment, BucketEntry[]> = { liked: [], ok: [], disliked: [] };
 
