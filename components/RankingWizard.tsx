@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   answerComparison,
@@ -65,6 +65,16 @@ export function RankingWizard({
 
   const bucket = sentiment ? buckets[sentiment] : [];
 
+  // State updates are not synchronous: two clicks in one tick would both read
+  // the same `placement`, and the second would drop the first's answer.
+  const busy = useRef(false);
+
+  // `submitting` is a dep for its false edge, the failed-save retry path. Its
+  // true edge releases early, but nothing is clickable then.
+  useEffect(() => {
+    busy.current = false;
+  }, [placement, submitting]);
+
   async function submit(chosen: Sentiment, bucketIndex: number) {
     setSubmitting(true);
     setError(null);
@@ -86,6 +96,9 @@ export function RankingWizard({
   }
 
   function chooseSentiment(chosen: Sentiment) {
+    if (busy.current) return;
+    busy.current = true;
+
     setSentiment(chosen);
 
     // An empty bucket resolves with no questions at all.
@@ -98,7 +111,9 @@ export function RankingWizard({
   }
 
   function answer(choice: 'new' | 'existing') {
+    if (busy.current) return;
     if (!placement || !sentiment) return;
+    busy.current = true;
 
     const next = answerComparison(placement, choice);
     if (next.status === 'placed') {
