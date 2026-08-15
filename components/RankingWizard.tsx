@@ -79,14 +79,26 @@ export function RankingWizard({
     setSubmitting(true);
     setError(null);
 
-    const { error } = await createClient().rpc('set_anime_rank', {
-      p_anilist_id: anilistId,
-      p_sentiment: chosen,
-      p_bucket_index: bucketIndex,
-    });
+    // A transport failure rejects rather than returning `error`, and submit()
+    // is fired with `void`, so without this the screen sticks on "Saving…".
+    try {
+      const { error } = await createClient().rpc('set_anime_rank', {
+        p_anilist_id: anilistId,
+        p_sentiment: chosen,
+        p_bucket_index: bucketIndex,
+      });
 
-    if (error) {
-      setError(error.message);
+      if (error) {
+        setError(error.message);
+        setSubmitting(false);
+        return;
+      }
+    } catch {
+      setError('Could not reach the server. Check your connection and try again.');
+      // Released here rather than via the effect: a synchronous throw would
+      // batch both setSubmitting calls, so `submitting` never changes and the
+      // effect never re-runs.
+      busy.current = false;
       setSubmitting(false);
       return;
     }
