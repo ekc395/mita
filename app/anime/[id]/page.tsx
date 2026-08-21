@@ -31,8 +31,7 @@ export default async function AnimeDetailPage({
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  // Whether the viewer has already logged this. user_anime is readable for
-  // anyone can_view_user() admits, not just the viewer, so this needs an
+  // user_anime is readable for anyone can_view_user() admits, so this needs an
   // explicit user filter or it matches other people's rows too.
   const { data: entry } = await supabase
     .from('user_anime')

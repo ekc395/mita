@@ -8,10 +8,8 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Every path except static assets and image files. Auth cookies are only
-     * worth refreshing on requests that can actually render something.
-     */
+    // Every path except static assets: cookies are only worth refreshing on
+    // requests that can actually render something.
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

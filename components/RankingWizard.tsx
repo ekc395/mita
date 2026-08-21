@@ -95,9 +95,8 @@ export function RankingWizard({
       }
     } catch {
       setError('Could not reach the server. Check your connection and try again.');
-      // Released here rather than via the effect: a synchronous throw would
-      // batch both setSubmitting calls, so `submitting` never changes and the
-      // effect never re-runs.
+      // Released here, not via the effect: a synchronous throw batches both
+      // setSubmitting calls, so the effect never re-runs.
       busy.current = false;
       setSubmitting(false);
       return;

@@ -25,10 +25,8 @@ export default async function ListPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  // user_anime is readable for anyone can_view_user() admits, not just the
-  // viewer, so this needs an explicit user filter or other people's titles are
-  // mixed into the list. Ordering by rank_position gives the ranked block in
-  // score order; unranked rows sort last and are split out below.
+  // user_anime is readable for anyone can_view_user() admits, so this needs an
+  // explicit user filter. rank_position ordering leaves unranked rows last.
   const { data } = await supabase
     .from('user_anime')
     .select(

@@ -29,9 +29,8 @@ function displayName(profile: FeedProfile | null): string {
 }
 
 /**
- * Coarse relative time. Rendered on the server, so it is the age as of the
- * request rather than a live-ticking clock -- accurate enough for a feed, and
- * it keeps this a Server Component.
+ * Coarse relative time, computed on the server: the age as of the request, not
+ * a ticking clock. Keeps this a Server Component.
  */
 function timeAgo(iso: string): string {
   const seconds = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);

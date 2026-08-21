@@ -3,11 +3,8 @@ import { createBrowserClient } from '@supabase/ssr';
 import type { Database } from '@/lib/types';
 
 /**
- * Supabase client for use in Client Components.
- *
- * Only ever reads the publishable (anon) key, which is safe to ship to the
- * browser: every table is gated by RLS, so this key grants nothing beyond what
- * the signed-in user is already allowed to see.
+ * Supabase client for Client Components. The anon key is safe to ship: every
+ * table is gated by RLS, so it grants nothing the signed-in user cannot see.
  */
 export function createClient() {
   return createBrowserClient<Database>(

@@ -3,11 +3,9 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
 /**
- * Where the emailed magic link lands.
- *
- * Supabase sends the user here with a one-time `code`; exchanging it is what
- * actually establishes the session cookies. This must be a Route Handler
- * rather than a page, because Server Components cannot write cookies.
+ * Where the emailed magic link lands. Exchanging the one-time `code` is what
+ * establishes the session cookies, and this must be a Route Handler because
+ * Server Components cannot write cookies.
  */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);

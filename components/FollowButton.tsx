@@ -6,12 +6,9 @@ import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 /**
- * Follow / unfollow toggle.
- *
- * viewerId is passed in rather than read from the session here: follows has no
- * default for follower_id, so the insert must name it, and the server component
- * that renders this already knows who the viewer is. RLS still requires it to
- * equal auth.uid(), so passing a forged id fails at the database.
+ * Follow / unfollow toggle. viewerId is a prop because follows has no default
+ * for follower_id and the rendering server component already knows it. RLS
+ * still requires it to equal auth.uid(), so a forged id fails at the database.
  */
 export function FollowButton({
   viewerId,

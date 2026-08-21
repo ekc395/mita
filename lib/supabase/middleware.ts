@@ -15,10 +15,9 @@ function isPublicRoute(pathname: string): boolean {
 /**
  * Refreshes the Supabase session on every request.
  *
- * Server Components cannot write cookies, so `createClient()` in ./server.ts
- * silently swallows cookie writes. That is only safe because this runs first:
- * without it an expired access token is never renewed, and users get silently
- * signed out roughly an hour after logging in.
+ * `createClient()` in ./server.ts swallows cookie writes, which is safe only
+ * because this runs first: otherwise access tokens are never renewed and users
+ * are signed out about an hour after logging in.
  */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -44,16 +43,14 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // Do not put anything between createServerClient and getUser(). This call is
-  // what actually performs the refresh, and code in between can cause sessions
-  // to be dropped at random and be very hard to debug.
+  // Nothing between createServerClient and getUser(): this call performs the
+  // refresh, and code in between drops sessions at random.
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   // Every RLS policy is scoped `to authenticated`, so a signed-out visitor
-  // would otherwise reach real pages that silently render nothing. Redirect
-  // instead, and let the auth routes through so signing in stays possible.
+  // would otherwise reach real pages that silently render nothing.
   if (!user && !isPublicRoute(request.nextUrl.pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';

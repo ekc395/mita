@@ -30,9 +30,8 @@ export default async function ProfilePage({
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  // profiles_select applies can_view_user(), so a private profile the viewer
-  // does not follow comes back as no rows -- indistinguishable from one that
-  // does not exist, which is the intent.
+  // profiles_select applies can_view_user(), so a private profile reads as no
+  // rows -- indistinguishable from nonexistent, which is the intent.
   const { data: profile } = await supabase
     .from('profiles')
     .select('id, username, display_name, bio')

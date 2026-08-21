@@ -5,10 +5,8 @@ import { searchAnime } from '@/lib/anilist';
 import { createClient } from '@/lib/supabase/server';
 
 /**
- * Search is a plain GET form against a Server Component rather than a
- * client-side fetch: the query lives in the URL, so results are shareable and
- * survive a refresh, and searchAnime stays server-only (it writes the cache
- * with the service-role key).
+ * A GET form against a Server Component, not a client fetch: the query lives in
+ * the URL (shareable, refresh-safe) and searchAnime stays server-only.
  */
 export default async function SearchPage({
   searchParams,

@@ -4,11 +4,7 @@ import { redirect } from 'next/navigation';
 import { FeedItem, type FeedActivity } from '@/components/FeedItem';
 import { createClient } from '@/lib/supabase/server';
 
-/**
- * Home feed: activity from the viewer and the people they follow.
- *
- * Middleware guarantees a user exists by the time this renders.
- */
+/** Home feed: activity from the viewer and the people they follow. */
 export default async function HomePage() {
   const supabase = await createClient();
   const {
@@ -27,9 +23,8 @@ export default async function HomePage() {
 
   if (!profile?.username) redirect('/onboarding');
 
-  // The feed is the viewer plus everyone they follow. activity's RLS predicate
-  // is can_view_user(), which also admits every public profile, so without an
-  // explicit user filter this would render a global feed.
+  // activity's RLS predicate can_view_user() also admits every public profile,
+  // so without an explicit user filter this renders a global feed.
   const { data: following } = await supabase
     .from('follows')
     .select('following_id')

@@ -6,15 +6,12 @@ import type { Anime, AnimeInsert } from '@/lib/types';
 /**
  * AniList catalogue access, plus the local cache that fronts it.
  *
- * Server-only. Not enforced by the `server-only` package (not a dependency),
- * but importing lib/supabase/server pulls in next/headers, which already fails
+ * Server-only: importing lib/supabase/server pulls in next/headers, which fails
  * loudly inside a Client Component.
  *
- * Everything here writes through the service-role client, because `anime` is
- * granted SELECT only to `authenticated` and has no write policy: the cache is
- * deliberately fillable by the server alone. Caching is not just a speed
- * tactic -- user_anime has a foreign key to anime, so a title must be cached
- * before it can be ranked at all.
+ * Writes go through the service-role client because `anime` has no write policy.
+ * Caching is not just a speed tactic -- user_anime has a foreign key to anime,
+ * so a title must be cached before it can be ranked at all.
  */
 
 const ANILIST_ENDPOINT = 'https://graphql.anilist.co';
@@ -87,9 +84,8 @@ export interface AniListMedia {
 }
 
 /**
- * AniList descriptions carry markup regardless of `asHtml`, so normalise once
- * on the way into the cache rather than making every consumer strip tags (or
- * reach for dangerouslySetInnerHTML) at render time.
+ * AniList descriptions carry markup regardless of `asHtml`; normalise on the way
+ * in so no consumer needs dangerouslySetInnerHTML.
  */
 function toPlainText(description: string | null): string | null {
   if (!description) return null;
@@ -123,10 +119,8 @@ function toAnimeRow(media: AniListMedia): AnimeInsert {
 }
 
 /**
- * Write titles into the local catalogue cache.
- *
- * Callers should await this before letting a user rank a title -- user_anime's
- * foreign key means an uncached title cannot be logged.
+ * Write titles into the local catalogue cache. Await it before letting a user
+ * rank a title: user_anime's foreign key rejects an uncached one.
  */
 export async function upsertAnimeCache(media: AniListMedia[]): Promise<Anime[]> {
   if (media.length === 0) return [];
@@ -144,11 +138,8 @@ export async function upsertAnimeCache(media: AniListMedia[]): Promise<Anime[]> 
 }
 
 /**
- * Search AniList by title, caching whatever comes back.
- *
- * Results are cached eagerly rather than at log time so that picking a title
- * from search results is immediately rankable, and so the detail page can be
- * served from Postgres without a second round trip.
+ * Search AniList by title, caching eagerly rather than at log time so a result
+ * is immediately rankable and the detail page needs no second round trip.
  */
 export async function searchAnime(query: string, perPage = 20): Promise<Anime[]> {
   const trimmed = query.trim();
@@ -175,13 +166,9 @@ export async function fetchAnimeFromAniList(anilistId: number): Promise<AniListM
 }
 
 /**
- * Read a title, preferring the cache.
- *
- * AniList allows roughly 90 requests per minute, so the cache is what keeps a
- * busy detail page from exhausting the budget. Only a cache miss or metadata
- * older than STALE_AFTER_MS reaches the network -- and a stale row is still
- * returned if AniList is unreachable, since slightly dated metadata beats a
- * broken page.
+ * Read a title, preferring the cache -- AniList allows only ~90 requests/minute.
+ * Only a miss or a row older than STALE_AFTER_MS hits the network, and a stale
+ * row is still returned if AniList is down: dated metadata beats a broken page.
  */
 export async function getAnime(anilistId: number): Promise<Anime | null> {
   const { data: cached } = await createServiceRoleClient()

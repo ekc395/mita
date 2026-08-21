@@ -9,13 +9,9 @@ import {
 } from './place';
 
 /**
- * Drive a full placement against an oracle that answers as though the new
- * title truly belongs at 1-based slot `target`, and report where it landed
- * plus how many questions it took.
- *
- * The oracle is the definition of "correct" here: a title destined for 0-based
- * position `target - 1` beats every existing entry at or below that index, and
- * loses to every entry above it.
+ * Drive a full placement against an oracle answering as though the new title
+ * belongs at 1-based slot `target`. The oracle defines "correct": that title
+ * beats every entry at or below `target - 1` and loses to everything above.
  */
 function placeWithOracle(bucketSize: number, target: number) {
   const boundary = target - 1;

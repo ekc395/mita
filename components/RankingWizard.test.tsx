@@ -4,12 +4,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { RankingWizard, type BucketEntry } from './RankingWizard';
 
 /**
- * Covers the wiring and failure handling around lib/ranking/place, not the
- * placement algorithm itself -- place.test.ts already exhausts that.
- *
- * The load-bearing cases are the ones the component actually got wrong before:
- * a second click landing before React has re-rendered, and a save that fails by
- * throwing rather than returning `{ error }`.
+ * Wiring and failure handling around lib/ranking/place; place.test.ts covers the
+ * algorithm itself. The load-bearing cases are the ones this component got
+ * wrong: a click landing before React re-renders, and a save that throws.
  */
 
 const { rpc, createClient, push, refresh } = vi.hoisted(() => ({
@@ -62,9 +59,8 @@ async function click(element: HTMLElement) {
 }
 
 /**
- * Fire two clicks inside a single act() so both handlers run before React
- * commits any state from the first. Testing Library's fireEvent flushes between
- * calls, which is exactly the interleaving the busy ref exists to survive.
+ * Two clicks inside one act(), so both handlers run before React commits the
+ * first. fireEvent flushes between calls, which defeats the point.
  */
 async function clickTwiceInOneTick(element: HTMLElement) {
   await act(async () => {

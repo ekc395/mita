@@ -6,10 +6,8 @@ import type { Database } from '@/lib/types';
 
 /**
  * Supabase client for Server Components, Server Actions and Route Handlers.
- *
- * Reads the session from cookies, so queries run as the signed-in user and RLS
- * applies exactly as it does from the browser. Async because `cookies()` is
- * async as of Next 15.
+ * Reads the session from cookies, so RLS applies as it does from the browser.
+ * Async because `cookies()` is async as of Next 15.
  */
 export async function createClient() {
   const cookieStore = await cookies();
@@ -30,9 +28,8 @@ export async function createClient() {
               cookieStore.set(name, value, options);
             }
           } catch {
-            // Server Components cannot write cookies. Ignoring this is safe
-            // only because middleware refreshes the session on every request;
-            // without that middleware, expired tokens are never renewed.
+            // Server Components cannot write cookies; safe to ignore only
+            // because middleware refreshes the session on every request.
           }
         },
       },
@@ -41,13 +38,11 @@ export async function createClient() {
 }
 
 /**
- * Privileged client that bypasses RLS entirely. Server-only — importing this
- * into a Client Component would ship the secret key to the browser.
+ * Privileged client that bypasses RLS. Server-only — importing it into a Client
+ * Component would ship the secret key to the browser.
  *
- * This exists because `anime` is granted SELECT only to `authenticated` and has
- * no write policy: the AniList catalogue cache is deliberately writable solely
- * by the server. Use it for `upsertAnimeCache()` and nothing else — for
- * anything acting on behalf of a user, use `createClient()` above so RLS holds.
+ * Exists because `anime` has no write policy: the catalogue cache is writable by
+ * the server alone. Use it for `upsertAnimeCache()` and nothing else.
  */
 export function createServiceRoleClient() {
   return createSupabaseClient<Database>(

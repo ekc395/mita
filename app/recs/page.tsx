@@ -1,11 +1,6 @@
 import Link from 'next/link';
 
-/**
- * Placeholder. Recommendations are milestone 7 in plan.md -- aggregating
- * followed users' high-scored titles the viewer has not logged, plus direct
- * user-to-user recs. This exists so /recs is a valid route module and the
- * build compiles; there is nothing to show until that lands.
- */
+/** Placeholder so /recs is a valid route module; see milestone 7 in plan.md. */
 export default function RecsPage() {
   return (
     <main className="py-8">

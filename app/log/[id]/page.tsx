@@ -31,11 +31,9 @@ export default async function LogPage({ params }: { params: Promise<{ id: string
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  // The viewer's ranked titles, best first. The user filter is load-bearing:
-  // user_anime is readable for anyone can_view_user() admits, so without it
-  // the buckets below would fill with other people's titles and the wizard
-  // would ask the user to compare against anime they have never logged.
-  // Ordering by rank_position is what the binary search assumes.
+  // The user filter is load-bearing: user_anime is readable for anyone
+  // can_view_user() admits, so without it the buckets fill with other people's
+  // titles. Ordering by rank_position is what the binary search assumes.
   const { data, error } = await supabase
     .from('user_anime')
     .select('anilist_id, sentiment, anime(title_english, title_romaji, cover_image_url)')
