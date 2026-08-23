@@ -42,27 +42,34 @@ export default async function ProfilePage({
 
   const isSelf = profile.id === user.id;
 
-  const [{ data: entries }, followers, following, existingFollow] = await Promise.all([
-    supabase
-      .from('user_anime')
-      .select('anilist_id, status, score, anime(title_english, title_romaji, cover_image_url)')
-      .eq('user_id', profile.id)
-      .order('rank_position', { nullsFirst: false }),
-    supabase
-      .from('follows')
-      .select('*', { count: 'exact', head: true })
-      .eq('following_id', profile.id),
-    supabase
-      .from('follows')
-      .select('*', { count: 'exact', head: true })
-      .eq('follower_id', profile.id),
-    supabase
-      .from('follows')
-      .select('follower_id')
-      .eq('follower_id', user.id)
-      .eq('following_id', profile.id)
-      .maybeSingle(),
-  ]);
+  const [{ data: entries, error: entriesError }, followers, following, existingFollow] =
+    await Promise.all([
+      supabase
+        .from('user_anime')
+        .select('anilist_id, status, score, anime(title_english, title_romaji, cover_image_url)')
+        .eq('user_id', profile.id)
+        .order('rank_position', { nullsFirst: false }),
+      supabase
+        .from('follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('following_id', profile.id),
+      supabase
+        .from('follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('follower_id', profile.id),
+      supabase
+        .from('follows')
+        .select('follower_id')
+        .eq('follower_id', user.id)
+        .eq('following_id', profile.id)
+        .maybeSingle(),
+    ]);
+
+  // A swallowed error renders as "Nothing ranked yet" on a populated profile,
+  // zeroed counts, or Follow for someone the viewer already follows.
+  const loadError =
+    entriesError ?? followers.error ?? following.error ?? existingFollow.error;
+  if (loadError) throw new Error(`Could not load this profile: ${loadError.message}`);
 
   const rows = (entries ?? []) as ProfileRow[];
   const ranked = rows.filter((row) => row.score !== null);

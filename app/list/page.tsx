@@ -27,13 +27,16 @@ export default async function ListPage() {
 
   // user_anime is readable for anyone can_view_user() admits, so this needs an
   // explicit user filter. rank_position ordering leaves unranked rows last.
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('user_anime')
     .select(
       'anilist_id, status, sentiment, rank_position, score, anime(title_english, title_romaji, cover_image_url)',
     )
     .eq('user_id', user.id)
     .order('rank_position', { nullsFirst: false });
+
+  // A swallowed error renders as "Nothing logged yet." on a populated list.
+  if (error) throw new Error(`Could not load your list: ${error.message}`);
 
   const rows = (data ?? []) as ListRow[];
   const ranked = rows.filter((row) => row.score !== null);
