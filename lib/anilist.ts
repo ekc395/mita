@@ -1,4 +1,4 @@
-import { gql, request } from 'graphql-request';
+import { gql, request, type Variables } from 'graphql-request';
 
 import { createServiceRoleClient } from '@/lib/supabase/server';
 import type { Anime, AnimeInsert } from '@/lib/types';
@@ -18,6 +18,9 @@ const ANILIST_ENDPOINT = 'https://graphql.anilist.co';
 
 /** Re-fetch a cached title once its metadata is a week old. */
 const STALE_AFTER_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** AniList sits on the render path; a hung connection must not hold a page open. */
+const REQUEST_TIMEOUT_MS = 8_000;
 
 /** Fields shared by search and single-title lookups. */
 const MEDIA_FIELDS = gql`
@@ -83,6 +86,16 @@ export interface AniListMedia {
   description: string | null;
 }
 
+/** One AniList query, bounded by REQUEST_TIMEOUT_MS. */
+function anilistRequest<T>(document: string, variables: Variables): Promise<T> {
+  return request<T>({
+    url: ANILIST_ENDPOINT,
+    document,
+    variables,
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+  });
+}
+
 /**
  * AniList descriptions carry markup regardless of `asHtml`; normalise on the way
  * in so no consumer needs dangerouslySetInnerHTML.
@@ -140,27 +153,27 @@ export async function upsertAnimeCache(media: AniListMedia[]): Promise<Anime[]> 
 /**
  * Search AniList by title, caching eagerly rather than at log time so a result
  * is immediately rankable and the detail page needs no second round trip.
+ *
+ * Throws if AniList is unreachable: an arbitrary query has no cached answer, and
+ * [] would render as "nothing found" -- a lie. Callers decide; see /search.
  */
 export async function searchAnime(query: string, perPage = 20): Promise<Anime[]> {
   const trimmed = query.trim();
   if (trimmed === '') return [];
 
-  const data = await request<{ Page: { media: AniListMedia[] } }>(
-    ANILIST_ENDPOINT,
-    SEARCH_QUERY,
-    { search: trimmed, perPage },
-  );
+  const data = await anilistRequest<{ Page: { media: AniListMedia[] } }>(SEARCH_QUERY, {
+    search: trimmed,
+    perPage,
+  });
 
   return upsertAnimeCache(data.Page?.media ?? []);
 }
 
 /** Fetch one title straight from AniList, bypassing the cache. */
 export async function fetchAnimeFromAniList(anilistId: number): Promise<AniListMedia | null> {
-  const data = await request<{ Media: AniListMedia | null }>(
-    ANILIST_ENDPOINT,
-    MEDIA_QUERY,
-    { id: anilistId },
-  );
+  const data = await anilistRequest<{ Media: AniListMedia | null }>(MEDIA_QUERY, {
+    id: anilistId,
+  });
 
   return data.Media ?? null;
 }

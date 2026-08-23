@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { AnimeCard } from '@/components/AnimeCard';
 import { searchAnime } from '@/lib/anilist';
 import { createClient } from '@/lib/supabase/server';
+import type { Anime } from '@/lib/types';
 
 /**
  * A GET form against a Server Component, not a client fetch: the query lives in
@@ -15,19 +16,37 @@ export default async function SearchPage({
 }) {
   const { q = '' } = await searchParams;
   const query = q.trim();
-  const results = query ? await searchAnime(query) : [];
+
+  // People search is Postgres and survives an AniList outage, so catch here
+  // rather than failing the whole route. Covers the cache write too, hence the
+  // neutral wording.
+  let results: Anime[] = [];
+  let titleSearchFailed = false;
+  if (query) {
+    try {
+      results = await searchAnime(query);
+    } catch (error) {
+      console.error(error);
+      titleSearchFailed = true;
+    }
+  }
 
   // People matching the same box. profiles_select applies can_view_user(), so
   // private profiles the viewer does not follow never appear here.
   const supabase = await createClient();
-  const { data: people } = query
+  const { data: people, error: peopleError } = query
     ? await supabase
         .from('profiles')
         .select('username, display_name')
         .not('username', 'is', null)
         .ilike('username', `%${query}%`)
         .limit(5)
-    : { data: [] };
+    : { data: [], error: null };
+
+  // supabase-js returns { data: null, error } instead of throwing, so an
+  // unchecked failure here would render as "nothing found" too.
+  const peopleSearchFailed = peopleError !== null;
+  if (peopleError) console.error(peopleError);
 
   return (
     <main className="py-8">
@@ -73,17 +92,34 @@ export default async function SearchPage({
         </>
       )}
 
+      {titleSearchFailed && (
+        <p className="mt-6 text-sm text-red-600">
+          Title search is unavailable right now.
+          {!peopleSearchFailed && ' People results still work.'}
+        </p>
+      )}
+
+      {peopleSearchFailed && (
+        <p className="mt-6 text-sm text-red-600">
+          People search is unavailable right now.
+        </p>
+      )}
+
       <div className="mt-6 space-y-1">
         {results.map((anime) => (
           <AnimeCard key={anime.anilist_id} anime={anime} />
         ))}
       </div>
 
-      {query && results.length === 0 && (people ?? []).length === 0 && (
-        <p className="mt-6 text-sm text-neutral-500">
-          Nothing found for “{query}”.
-        </p>
-      )}
+      {query &&
+        !titleSearchFailed &&
+        !peopleSearchFailed &&
+        results.length === 0 &&
+        (people ?? []).length === 0 && (
+          <p className="mt-6 text-sm text-neutral-500">
+            Nothing found for “{query}”.
+          </p>
+        )}
     </main>
   );
 }
