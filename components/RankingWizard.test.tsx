@@ -25,6 +25,7 @@ vi.mock('next/navigation', () => ({
 // next/image needs the Next runtime for its loader; the tests only care that a
 // poster's title is reachable, which lives in a sibling <p>.
 vi.mock('next/image', () => ({
+  // eslint-disable-next-line @next/next/no-img-element -- this is the stand-in for next/image
   default: ({ alt }: { alt: string }) => <img alt={alt} />,
 }));
 
