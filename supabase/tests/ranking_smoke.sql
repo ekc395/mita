@@ -296,6 +296,32 @@ begin
     raise exception 'ASSERT FAILED: adding to want-to-watch should emit one want activity';
   end if;
 
+end $$;
+
+do $$
+begin
+  raise notice 'phase 11: log_activity is off the Data API surface';
+
+  -- Phase 10 only proves the feed still works; a migration that silently did
+  -- nothing would pass it. These assert the 0006 move actually landed.
+  -- PostgREST serves `public` only, so a function reachable there is callable
+  -- by any signed-in client -- which is what allowed forged feed rows.
+  if exists (
+    select 1 from pg_proc p
+      join pg_namespace n on n.oid = p.pronamespace
+     where n.nspname = 'public' and p.proname = 'log_activity'
+  ) then
+    raise exception 'ASSERT FAILED: log_activity is still in public and callable over the Data API';
+  end if;
+
+  if not exists (
+    select 1 from pg_proc p
+      join pg_namespace n on n.oid = p.pronamespace
+     where n.nspname = 'private' and p.proname = 'log_activity'
+  ) then
+    raise exception 'ASSERT FAILED: private.log_activity is missing -- the callers cannot write the feed';
+  end if;
+
   raise notice 'ranking_smoke: all assertions passed';
 end $$;
 
