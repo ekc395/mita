@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
 import { getAnime } from '@/lib/anilist';
+import { toOne } from '@/lib/supabase/embed';
 import { createClient } from '@/lib/supabase/server';
 import { animeTitle } from '@/lib/types';
 
@@ -57,7 +58,12 @@ export default async function AnimeDetailPage({
         .order('score', { ascending: false })
     : { data: [] };
 
-  const friends = (friendRows ?? []) as unknown as FriendRank[];
+  // profiles is a to-one embed; see lib/supabase/embed.ts.
+  const friends: FriendRank[] = (
+    (friendRows ?? []) as unknown as (Omit<FriendRank, 'profiles'> & {
+      profiles: FriendRank['profiles'] | NonNullable<FriendRank['profiles']>[];
+    })[]
+  ).map((row) => ({ ...row, profiles: toOne(row.profiles, 'user_anime.profiles') }));
   const friendAverage =
     friends.length > 0
       ? friends.reduce((sum, row) => sum + (row.score ?? 0), 0) / friends.length

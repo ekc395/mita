@@ -2,7 +2,15 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { FeedItem, type FeedActivity } from '@/components/FeedItem';
+import { toOne } from '@/lib/supabase/embed';
 import { createClient } from '@/lib/supabase/server';
+
+/** Each to-one embed may arrive either way, so the cast asserts only that; see embed.ts. */
+type RawFeedRow = Omit<FeedActivity, 'actor' | 'target' | 'anime'> & {
+  actor: FeedActivity['actor'] | NonNullable<FeedActivity['actor']>[];
+  target: FeedActivity['target'] | NonNullable<FeedActivity['target']>[];
+  anime: FeedActivity['anime'] | NonNullable<FeedActivity['anime']>[];
+};
 
 /** Home feed: activity from the viewer and the people they follow. */
 export default async function HomePage() {
@@ -44,7 +52,12 @@ export default async function HomePage() {
     .order('created_at', { ascending: false })
     .limit(50);
 
-  const items = (activity ?? []) as unknown as FeedActivity[];
+  const items: FeedActivity[] = ((activity ?? []) as unknown as RawFeedRow[]).map((row) => ({
+    ...row,
+    actor: toOne(row.actor, 'activity.actor'),
+    target: toOne(row.target, 'activity.target'),
+    anime: toOne(row.anime, 'activity.anime'),
+  }));
 
   return (
     <main className="py-8">
