@@ -86,9 +86,21 @@ export function RankingWizard({
         p_anilist_id: anilistId,
         p_sentiment: chosen,
         p_bucket_index: bucketIndex,
+        p_expected: buckets[chosen].map((entry) => entry.anilist_id),
       });
 
       if (error) {
+        // P0002: the bucket moved, so our ordinal names a different slot now.
+        // Reset rather than just report -- a retry resends the same stale list.
+        if (error.code === 'P0002') {
+          setError('Your list changed while you were ranking. Please start again.');
+          setSentiment(null);
+          setPlacement(null);
+          setSubmitting(false);
+          router.refresh();
+          return;
+        }
+
         setError(error.message);
         setSubmitting(false);
         return;

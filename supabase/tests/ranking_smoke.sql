@@ -62,7 +62,7 @@ do $$
 begin
   raise notice 'phase 2: a lone liked title scores 10.0';
 
-  perform public.set_anime_rank(900001, 'liked', 1);
+  perform public.set_anime_rank(900001, 'liked', 1, '{}');
 
   if (select score from public.user_anime where anilist_id = 900001) <> 10.0 then
     raise exception 'ASSERT FAILED: a lone liked title must score exactly 10.0, got %',
@@ -74,10 +74,10 @@ do $$
 begin
   raise notice 'phase 3: place across all three buckets';
 
-  perform public.set_anime_rank(900002, 'liked',    1);  -- best liked
-  perform public.set_anime_rank(900003, 'ok',       1);
-  perform public.set_anime_rank(900004, 'disliked', 1);
-  perform public.set_anime_rank(900005, 'liked',    3);  -- worst liked
+  perform public.set_anime_rank(900002, 'liked',    1, array[900001]);  -- best liked
+  perform public.set_anime_rank(900003, 'ok',       1, '{}');
+  perform public.set_anime_rank(900004, 'disliked', 1, '{}');
+  perform public.set_anime_rank(900005, 'liked',    3, array[900002, 900001]);  -- worst liked
 end $$;
 
 -- Expected: liked 900002,900001,900005 -> ok 900003 -> disliked 900004
@@ -172,7 +172,8 @@ do $$
 begin
   raise notice 'phase 5: re-ranking does not duplicate rows or feed items';
 
-  perform public.set_anime_rank(900001, 'liked', 3);  -- move it to worst liked
+  -- 900001 is removed from the bucket before the check, so it is excluded here.
+  perform public.set_anime_rank(900001, 'liked', 3, array[900002, 900005]);  -- move it to worst liked
 
   if (select count(*) from public.user_anime
        where user_id = '11111111-1111-1111-1111-111111111111') <> 5 then

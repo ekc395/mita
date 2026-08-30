@@ -96,6 +96,7 @@ describe('saving a placement', () => {
       p_anilist_id: 101,
       p_sentiment: 'liked',
       p_bucket_index: 1,
+      p_expected: [],
     });
     expect(push).toHaveBeenCalledWith('/list');
     expect(refresh).toHaveBeenCalled();
@@ -149,6 +150,67 @@ describe('saving a placement', () => {
       'set_anime_rank',
       expect.objectContaining({ p_bucket_index: 4 }),
     );
+  });
+});
+
+describe('the bucket snapshot sent with a placement', () => {
+  it('sends the ids of the bucket actually compared against', async () => {
+    renderWizard({
+      liked: [entry(1, 'First'), entry(2, 'Second')],
+      ok: [entry(9, 'Unrelated')],
+    });
+    await click(button('I liked it'));
+
+    // A two-entry bucket takes two comparisons; keep winning until placed.
+    while (screen.queryByText('Which did you like more?')) {
+      await click(button(/New Title/));
+    }
+
+    // The liked bucket in order -- not the ok bucket, and not a count.
+    expect(rpc).toHaveBeenCalledWith(
+      'set_anime_rank',
+      expect.objectContaining({ p_expected: [1, 2] }),
+    );
+  });
+
+  it('sends the chosen bucket even when another is non-empty', async () => {
+    renderWizard({ liked: [entry(1, 'First')], disliked: [] });
+
+    await click(button("I didn't like it"));
+
+    expect(rpc).toHaveBeenCalledWith(
+      'set_anime_rank',
+      expect.objectContaining({ p_sentiment: 'disliked', p_expected: [] }),
+    );
+  });
+});
+
+describe('when the ranking changed underneath', () => {
+  it('resets to the sentiment screen and refreshes on P0002', async () => {
+    rpc.mockResolvedValueOnce({
+      error: { code: 'P0002', message: 'set_anime_rank: the ranking changed since this page loaded' },
+    });
+    renderWizard({ liked: [entry(1, 'Old Title')] });
+    await click(button('I liked it'));
+
+    await click(button(/New Title/));
+
+    // Back to the start, not stranded mid-comparison against a stale bucket.
+    expect(screen.queryByText('Which did you like more?')).toBeNull();
+    expect(screen.queryByText(/Your list changed/)).not.toBeNull();
+    expect(refresh).toHaveBeenCalled();
+    expect(push).not.toHaveBeenCalled();
+  });
+
+  it('still reports an ordinary error rather than treating it as a conflict', async () => {
+    rpc.mockResolvedValueOnce({ error: { code: '42501', message: 'permission denied' } });
+    renderWizard();
+
+    await click(button('I liked it'));
+
+    expect(screen.queryByText('permission denied')).not.toBeNull();
+    expect(refresh).not.toHaveBeenCalled();
+    expect(push).not.toHaveBeenCalled();
   });
 });
 
