@@ -32,9 +32,9 @@ Recommendations (`/recs`) is a placeholder. Nothing else is stubbed.
 
 ## Status
 
-Working. Ranking, the want list, follows, the feed and profiles have all been exercised
-end to end with two accounts. Recommendations are not built, and it is not deployed
-anywhere yet.
+Working and deployed at **https://mita-black.vercel.app**. Ranking, the want list,
+follows, the feed and profiles have all been exercised end to end with two accounts.
+Recommendations are not built yet.
 
 ## Stack
 
