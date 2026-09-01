@@ -5,13 +5,6 @@ import { FeedItem, type FeedActivity } from '@/components/FeedItem';
 import { toOne } from '@/lib/supabase/embed';
 import { createClient } from '@/lib/supabase/server';
 
-/** Each to-one embed may arrive either way, so the cast asserts only that; see embed.ts. */
-type RawFeedRow = Omit<FeedActivity, 'actor' | 'target' | 'anime'> & {
-  actor: FeedActivity['actor'] | NonNullable<FeedActivity['actor']>[];
-  target: FeedActivity['target'] | NonNullable<FeedActivity['target']>[];
-  anime: FeedActivity['anime'] | NonNullable<FeedActivity['anime']>[];
-};
-
 /** Home feed: activity from the viewer and the people they follow. */
 export default async function HomePage() {
   const supabase = await createClient();
@@ -43,16 +36,13 @@ export default async function HomePage() {
   const { data: activity } = await supabase
     .from('activity')
     .select(
-      'id, type, anilist_id, score, created_at, ' +
-        'actor:profiles!activity_user_id_fkey(username, display_name), ' +
-        'target:profiles!activity_target_user_fkey(username, display_name), ' +
-        'anime(title_english, title_romaji, cover_image_url)',
+      'id, type, anilist_id, score, created_at, actor:profiles!activity_user_id_fkey(username, display_name), target:profiles!activity_target_user_fkey(username, display_name), anime(title_english, title_romaji, cover_image_url)',
     )
     .in('user_id', authorIds)
     .order('created_at', { ascending: false })
     .limit(50);
 
-  const items: FeedActivity[] = ((activity ?? []) as unknown as RawFeedRow[]).map((row) => ({
+  const items: FeedActivity[] = (activity ?? []).map((row) => ({
     ...row,
     actor: toOne(row.actor, 'activity.actor'),
     target: toOne(row.target, 'activity.target'),
@@ -69,6 +59,9 @@ export default async function HomePage() {
           </Link>
           <Link href="/list" className="hover:underline">
             Your list
+          </Link>
+          <Link href="/recs" className="hover:underline">
+            For you
           </Link>
           <Link href={`/u/${profile.username}`} className="hover:underline">
             @{profile.username}

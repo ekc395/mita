@@ -59,11 +59,10 @@ export default async function AnimeDetailPage({
     : { data: [] };
 
   // profiles is a to-one embed; see lib/supabase/embed.ts.
-  const friends: FriendRank[] = (
-    (friendRows ?? []) as unknown as (Omit<FriendRank, 'profiles'> & {
-      profiles: FriendRank['profiles'] | NonNullable<FriendRank['profiles']>[];
-    })[]
-  ).map((row) => ({ ...row, profiles: toOne(row.profiles, 'user_anime.profiles') }));
+  const friends: FriendRank[] = (friendRows ?? []).map((row) => ({
+    ...row,
+    profiles: toOne(row.profiles, 'user_anime.profiles'),
+  }));
   const friendAverage =
     friends.length > 0
       ? friends.reduce((sum, row) => sum + (row.score ?? 0), 0) / friends.length
