@@ -323,6 +323,62 @@ begin
     raise exception 'ASSERT FAILED: private.log_activity is missing -- the callers cannot write the feed';
   end if;
 
+end $$;
+
+do $$
+begin
+  raise notice 'phase 12: you may only recommend to people you follow';
+
+  -- Still acting as B, who followed A in phase 8. A never followed back, which
+  -- is the asymmetry 0008's policy turns on.
+  insert into public.recommendations (from_user, to_user, anilist_id, note)
+  values ('22222222-2222-2222-2222-222222222222',
+          '11111111-1111-1111-1111-111111111111', 900001, 'worth it');
+
+  if (select count(*) from public.recommendations
+       where from_user = '22222222-2222-2222-2222-222222222222') <> 1 then
+    raise exception 'ASSERT FAILED: B follows A, so B must be able to recommend to A';
+  end if;
+
+  -- The trigger mirrors it into the feed; 0004 scopes who may read that row.
+  if (select count(*) from public.activity
+       where type = 'recommended'
+         and user_id = '22222222-2222-2222-2222-222222222222') <> 1 then
+    raise exception 'ASSERT FAILED: a recommendation must emit one recommended activity';
+  end if;
+
+  begin
+    insert into public.recommendations (from_user, to_user, anilist_id, note)
+    values ('22222222-2222-2222-2222-222222222222',
+            '11111111-1111-1111-1111-111111111111', 900003, repeat('x', 301));
+
+    raise exception 'ASSERT FAILED: a note over 300 characters must be rejected';
+  exception
+    when check_violation then
+      null;  -- expected: recommendations_note_len
+  end;
+end $$;
+
+select set_config('request.jwt.claims',
+  '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}', true);
+
+do $$
+begin
+  raise notice 'phase 13: recommending to a non-follower is refused';
+
+  -- A does not follow B, so this is the case 0008 exists to stop. Before it, any
+  -- signed-in user could write into any other user's inbox.
+  begin
+    insert into public.recommendations (from_user, to_user, anilist_id)
+    values ('11111111-1111-1111-1111-111111111111',
+            '22222222-2222-2222-2222-222222222222', 900004);
+
+    raise exception 'ASSERT FAILED: A does not follow B, so the insert must be refused';
+  exception
+    when insufficient_privilege then
+      null;  -- expected: recommendations_insert WITH CHECK rejected it
+  end;
+
   raise notice 'ranking_smoke: all assertions passed';
 end $$;
 

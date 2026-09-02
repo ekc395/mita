@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
+import { RecommendButton, type Recipient } from '@/components/RecommendButton';
 import { getAnime } from '@/lib/anilist';
 import { toOne } from '@/lib/supabase/embed';
 import { createClient } from '@/lib/supabase/server';
@@ -41,12 +42,21 @@ export default async function AnimeDetailPage({
     .eq('user_id', user.id)
     .maybeSingle();
 
-  const { data: following } = await supabase
+  // follows has two FKs into profiles, so the embed must name the constraint.
+  const { data: following, error: followingError } = await supabase
     .from('follows')
-    .select('following_id')
+    .select('following_id, profiles!follows_following_id_fkey(id, username, display_name)')
     .eq('follower_id', user.id);
 
+  if (followingError) {
+    throw new Error(`Could not load who you follow: ${followingError.message}`);
+  }
+
   const followingIds = (following ?? []).map((row) => row.following_id);
+
+  const recipients: Recipient[] = (following ?? [])
+    .map((row) => toOne(row.profiles, 'follows.profiles'))
+    .filter((person): person is Recipient => person !== null);
 
   const { data: friendRows } = followingIds.length
     ? await supabase
@@ -110,6 +120,15 @@ export default async function AnimeDetailPage({
           </Link>
         </div>
       </div>
+
+      <section className="mt-8">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+          Recommend
+        </h2>
+        <div className="mt-3">
+          <RecommendButton viewerId={user.id} anilistId={anilistId} people={recipients} />
+        </div>
+      </section>
 
       {friends.length > 0 && (
         <section className="mt-8">

@@ -27,14 +27,15 @@ list changes.
 - **Follows and a feed** — activity from the people you follow
 - **Profiles** — public by default, with a private flag honoured at the database level
 - **Friends who ranked this** — see a followed user's score on any title
-
-Recommendations (`/recs`) is a placeholder. Nothing else is stubbed.
+- **Recommendations** — titles the people you follow liked that you haven't logged,
+  ranked by how many of them agree, plus anything sent to you directly
+- **Send a recommendation** — pass a title to someone you follow, with a note
 
 ## Status
 
 Working and deployed at **https://mita-black.vercel.app**. Ranking, the want list,
-follows, the feed and profiles have all been exercised end to end with two accounts.
-Recommendations are not built yet.
+follows, the feed, profiles and recommendations have all been exercised end to end with
+two accounts.
 
 ## Stack
 

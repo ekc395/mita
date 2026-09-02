@@ -64,6 +64,27 @@ export default async function RecsPage() {
 
   const followingIds = (following ?? []).map((row) => row.following_id);
 
+  // recommendations_select already limits rows to sender and recipient; the
+  // to_user filter is what makes this the inbox rather than both directions.
+  const { data: inboxRows, error: inboxError } = await supabase
+    .from('recommendations')
+    .select(
+      'id, note, created_at, anilist_id, profiles!recommendations_from_user_fkey(username, display_name), anime(title_english, title_romaji, cover_image_url)',
+    )
+    .eq('to_user', user.id)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  if (inboxError) {
+    throw new Error(`Could not load your recommendations: ${inboxError.message}`);
+  }
+
+  const inbox = (inboxRows ?? []).map((row) => ({
+    ...row,
+    profiles: toOne(row.profiles, 'recommendations.profiles'),
+    anime: toOne(row.anime, 'recommendations.anime'),
+  }));
+
   // PostgREST truncates an oversized response *silently*, so unbounded this
   // would under-count fans and mis-rank with no error. Score order also settles
   // the fan names, which would otherwise shuffle between renders.
@@ -143,7 +164,33 @@ export default async function RecsPage() {
         </Link>
       </div>
 
-      {followingIds.length === 0 && (
+      {inbox.length > 0 && (
+        <section className="mt-6">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+            Sent to you
+          </h2>
+
+          <div className="mt-3 space-y-1">
+            {inbox.map((row) => (
+              <Link
+                key={row.id}
+                href={`/anime/${row.anilist_id}`}
+                className="block rounded-lg p-2 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-900"
+              >
+                <p className="truncate text-sm font-medium">
+                  {row.anime ? animeTitle(row.anime) : 'Untitled'}
+                </p>
+                <p className="truncate text-sm text-neutral-500">
+                  {fanName(row.profiles)} recommended this
+                  {row.note ? ` — "${row.note}"` : ''}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {followingIds.length === 0 && inbox.length === 0 && (
         <p className="mt-6 text-sm text-neutral-500">
           Recommendations come from people you follow.{' '}
           <Link href="/search" className="underline">
