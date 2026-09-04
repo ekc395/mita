@@ -66,6 +66,13 @@ export default async function HomePage() {
           <Link href={`/u/${profile.username}`} className="hover:underline">
             @{profile.username}
           </Link>
+          {/* A form, not a link: the handler is POST so a prefetch cannot sign
+              you out. No client JS, so / stays free of the auth bundle. */}
+          <form action="/auth/signout" method="post">
+            <button type="submit" className="hover:underline">
+              Sign out
+            </button>
+          </form>
         </div>
       </div>
 
