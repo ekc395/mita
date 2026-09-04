@@ -61,11 +61,17 @@ export default async function SearchPage({
         <input
           name="q"
           defaultValue={query}
-          placeholder="Search anime…"
+          placeholder="Search anime or people…"
           autoComplete="off"
           className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-500 dark:border-neutral-700 dark:bg-transparent"
         />
       </form>
+
+      {!query && (
+        <p className="mt-4 text-sm text-neutral-500">
+          One box for both: search a title to log it, or a username to follow someone.
+        </p>
+      )}
 
       {(people ?? []).length > 0 && (
         <>
@@ -105,11 +111,19 @@ export default async function SearchPage({
         </p>
       )}
 
-      <div className="mt-6 space-y-1">
-        {results.map((anime) => (
-          <AnimeCard key={anime.anilist_id} anime={anime} />
-        ))}
-      </div>
+      {results.length > 0 && (
+        <>
+          {/* Headed to match People, so neither section reads as an afterthought. */}
+          <h2 className="mt-6 text-sm font-semibold uppercase tracking-wide text-neutral-500">
+            Anime
+          </h2>
+          <div className="mt-3 space-y-1">
+            {results.map((anime) => (
+              <AnimeCard key={anime.anilist_id} anime={anime} />
+            ))}
+          </div>
+        </>
+      )}
 
       {query &&
         !titleSearchFailed &&
