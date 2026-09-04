@@ -32,7 +32,7 @@ export default function LoginPage() {
     return (
       <main className="py-16">
         <h1 className="text-2xl font-semibold">Check your email</h1>
-        <p className="mt-2 text-sm text-neutral-500">
+        <p className="mt-2 text-sm text-muted-foreground">
           We sent a sign-in link to <span className="font-medium">{email}</span>. Open it on
           this device to continue.
         </p>
@@ -43,7 +43,7 @@ export default function LoginPage() {
   return (
     <main className="py-16">
       <h1 className="text-2xl font-semibold">mita</h1>
-      <p className="mt-2 text-sm text-neutral-500">
+      <p className="mt-2 text-sm text-muted-foreground">
         Rank the anime you watch, head to head.
       </p>
 
@@ -55,13 +55,13 @@ export default function LoginPage() {
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           placeholder="you@example.com"
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-500 dark:border-neutral-700 dark:bg-transparent"
+          className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-foreground"
         />
 
         <button
           type="submit"
           disabled={status === 'sending'}
-          className="w-full rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-neutral-900"
+          className="w-full rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
         >
           {status === 'sending' ? 'Sending…' : 'Send sign-in link'}
         </button>

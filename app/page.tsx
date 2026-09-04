@@ -53,7 +53,7 @@ export default async function HomePage() {
     <main className="py-8">
       <div className="flex items-baseline justify-between">
         <h1 className="text-2xl font-semibold">mita</h1>
-        <div className="flex gap-4 text-sm text-neutral-500">
+        <div className="flex gap-4 text-sm text-muted-foreground">
           <Link href="/search" className="hover:underline">
             Search
           </Link>
@@ -77,7 +77,7 @@ export default async function HomePage() {
       </div>
 
       {items.length === 0 ? (
-        <div className="mt-8 rounded-lg border border-neutral-200 p-6 text-sm text-neutral-500 dark:border-neutral-800">
+        <div className="mt-8 rounded-lg border border-border p-6 text-sm text-muted-foreground">
           {authorIds.length === 1 ? (
             <>
               Your feed is empty.{' '}
@@ -91,7 +91,7 @@ export default async function HomePage() {
           )}
         </div>
       ) : (
-        <ul className="mt-6 divide-y divide-neutral-100 dark:divide-neutral-900">
+        <ul className="mt-6 divide-y divide-border">
           {items.map((item) => (
             <FeedItem key={item.id} activity={item} />
           ))}

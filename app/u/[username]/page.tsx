@@ -77,7 +77,7 @@ export default async function ProfilePage({
 
   return (
     <main className="py-8">
-      <Link href="/" className="text-sm text-neutral-500 hover:underline">
+      <Link href="/" className="text-sm text-muted-foreground hover:underline">
         ← Home
       </Link>
 
@@ -87,11 +87,11 @@ export default async function ProfilePage({
             {profile.display_name ?? `@${profile.username}`}
           </h1>
           {profile.display_name && (
-            <p className="mt-1 text-sm text-neutral-500">@{profile.username}</p>
+            <p className="mt-1 text-sm text-muted-foreground">@{profile.username}</p>
           )}
           {profile.bio && <p className="mt-3 text-sm leading-relaxed">{profile.bio}</p>}
 
-          <p className="mt-3 text-sm text-neutral-500">
+          <p className="mt-3 text-sm text-muted-foreground">
             {ranked.length} ranked · {followers.count ?? 0} followers ·{' '}
             {following.count ?? 0} following
           </p>
@@ -107,7 +107,7 @@ export default async function ProfilePage({
       </div>
 
       {ranked.length === 0 && (
-        <p className="mt-8 text-sm text-neutral-500">
+        <p className="mt-8 text-sm text-muted-foreground">
           {isSelf ? 'You have not ranked anything yet.' : 'Nothing ranked yet.'}
         </p>
       )}
@@ -118,9 +118,9 @@ export default async function ProfilePage({
             <li key={row.anilist_id}>
               <Link
                 href={`/anime/${row.anilist_id}`}
-                className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-900"
+                className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-accent"
               >
-                <span className="w-5 shrink-0 text-sm text-neutral-400">{index + 1}</span>
+                <span className="w-5 shrink-0 text-sm text-muted-foreground">{index + 1}</span>
 
                 {row.anime?.cover_image_url ? (
                   <Image
@@ -131,7 +131,7 @@ export default async function ProfilePage({
                     className="h-14 w-10 shrink-0 rounded object-cover"
                   />
                 ) : (
-                  <div className="h-14 w-10 shrink-0 rounded bg-neutral-200 dark:bg-neutral-800" />
+                  <div className="h-14 w-10 shrink-0 rounded bg-muted" />
                 )}
 
                 <span className="min-w-0 flex-1 truncate text-sm font-medium">
@@ -149,7 +149,7 @@ export default async function ProfilePage({
 
       {want.length > 0 && (
         <>
-          <h2 className="mt-10 text-sm font-semibold uppercase tracking-wide text-neutral-500">
+          <h2 className="mt-10 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Want to watch
           </h2>
           <ul className="mt-3 space-y-1">
@@ -157,7 +157,7 @@ export default async function ProfilePage({
               <li key={row.anilist_id}>
                 <Link
                   href={`/anime/${row.anilist_id}`}
-                  className="block truncate rounded-lg p-2 text-sm transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-900"
+                  className="block truncate rounded-lg p-2 text-sm transition-colors hover:bg-accent"
                 >
                   {row.anime ? animeTitle(row.anime) : 'Unknown'}
                 </Link>

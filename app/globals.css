@@ -3,20 +3,37 @@
 @tailwind utilities;
 
 :root {
+  /* Three surfaces, deliberately distinct in lightness: --accent is the hover
+     fill, --muted the empty-state block, --border the hairline. Collapsing any
+     two makes an outlined button lose its edge on hover, or a placeholder
+     disappear into the row it sits in. */
   --background: 0 0% 100%;
   --foreground: 240 10% 4%;
-  --muted: 240 5% 96%;
-  --muted-foreground: 240 4% 46%;
-  --border: 240 6% 90%;
+  --accent: 240 5% 96%;
+  --muted: 240 5% 90%;
+  --muted-foreground: 240 4% 40%;
+  --border: 240 6% 83%;
+
+  /* Solid buttons invert the page, so they flip with the scheme too. */
+  --primary: 240 10% 4%;
+  --primary-foreground: 0 0% 100%;
+
+  /* Lets the UA paint form controls to match, which is what the inputs' old
+     dark:bg-transparent was compensating for. */
+  color-scheme: light dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: 240 10% 4%;
     --foreground: 0 0% 98%;
-    --muted: 240 4% 16%;
+    --accent: 240 4% 9%;
+    --muted: 240 4% 15%;
     --muted-foreground: 240 5% 65%;
-    --border: 240 4% 16%;
+    --border: 240 4% 25%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 10% 4%;
   }
 }
 

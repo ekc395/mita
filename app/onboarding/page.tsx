@@ -53,7 +53,7 @@ export default function OnboardingPage() {
   return (
     <main className="py-16">
       <h1 className="text-2xl font-semibold">Pick a username</h1>
-      <p className="mt-2 text-sm text-neutral-500">
+      <p className="mt-2 text-sm text-muted-foreground">
         This is how friends will find you. You can&apos;t change it later.
       </p>
 
@@ -64,13 +64,13 @@ export default function OnboardingPage() {
           value={username}
           onChange={(event) => setUsername(event.target.value.toLowerCase())}
           placeholder="frieren_fan"
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-500 dark:border-neutral-700 dark:bg-transparent"
+          className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-foreground"
         />
 
         <button
           type="submit"
           disabled={saving}
-          className="w-full rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-neutral-900"
+          className="w-full rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
         >
           {saving ? 'Saving…' : 'Continue'}
         </button>

@@ -80,7 +80,7 @@ export default async function AnimeDetailPage({
 
   return (
     <main className="py-8">
-      <Link href="/search" className="text-sm text-neutral-500 hover:underline">
+      <Link href="/search" className="text-sm text-muted-foreground hover:underline">
         ← Search
       </Link>
 
@@ -98,9 +98,9 @@ export default async function AnimeDetailPage({
         <div className="min-w-0">
           <h1 className="text-xl font-semibold">{animeTitle(anime)}</h1>
           {anime.title_romaji && anime.title_english && (
-            <p className="mt-1 text-sm text-neutral-500">{anime.title_romaji}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{anime.title_romaji}</p>
           )}
-          <p className="mt-2 text-sm text-neutral-500">
+          <p className="mt-2 text-sm text-muted-foreground">
             {[anime.format, anime.season_year, anime.episodes && `${anime.episodes} eps`]
               .filter(Boolean)
               .join(' · ')}
@@ -109,12 +109,12 @@ export default async function AnimeDetailPage({
           {entry?.score != null ? (
             <p className="mt-3 text-sm font-medium">Your score: {entry.score}</p>
           ) : entry ? (
-            <p className="mt-3 text-sm text-neutral-500">On your list: {entry.status}</p>
+            <p className="mt-3 text-sm text-muted-foreground">On your list: {entry.status}</p>
           ) : null}
 
           <Link
             href={`/log/${anilistId}`}
-            className="mt-4 inline-block rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white dark:bg-white dark:text-neutral-900"
+            className="mt-4 inline-block rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
           >
             {entry?.score != null ? 'Re-rank' : 'I watched this'}
           </Link>
@@ -122,7 +122,7 @@ export default async function AnimeDetailPage({
       </div>
 
       <section className="mt-8">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           Recommend
         </h2>
         <div className="mt-3">
@@ -132,7 +132,7 @@ export default async function AnimeDetailPage({
 
       {friends.length > 0 && (
         <section className="mt-8">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Friends who ranked this
             {friendAverage !== null && (
               <span className="ml-2 font-normal normal-case tracking-normal">
@@ -167,7 +167,7 @@ export default async function AnimeDetailPage({
       )}
 
       {anime.genres.length > 0 && (
-        <p className="mt-6 text-sm text-neutral-500">{anime.genres.join(', ')}</p>
+        <p className="mt-6 text-sm text-muted-foreground">{anime.genres.join(', ')}</p>
       )}
 
       {anime.description && (

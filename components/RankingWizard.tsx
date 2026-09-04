@@ -38,7 +38,7 @@ function Poster({ title, cover }: { title: string; cover: string | null }) {
           className="h-40 w-28 rounded object-cover"
         />
       ) : (
-        <div className="h-40 w-28 rounded bg-neutral-200 dark:bg-neutral-800" />
+        <div className="h-40 w-28 rounded bg-muted" />
       )}
       <p className="max-w-28 text-center text-sm font-medium">{title}</p>
     </div>
@@ -147,21 +147,21 @@ export function RankingWizard({
   }
 
   if (submitting) {
-    return <p className="py-16 text-sm text-neutral-500">Saving…</p>;
+    return <p className="py-16 text-sm text-muted-foreground">Saving…</p>;
   }
 
   if (!sentiment || !placement || placement.status === 'placed') {
     return (
       <div className="py-8">
         <h1 className="text-xl font-semibold">{title}</h1>
-        <p className="mt-2 text-sm text-neutral-500">What did you think?</p>
+        <p className="mt-2 text-sm text-muted-foreground">What did you think?</p>
 
         <div className="mt-6 space-y-2">
           {SENTIMENTS.map(({ value, label }) => (
             <button
               key={value}
               onClick={() => chooseSentiment(value)}
-              className="w-full rounded-lg border border-neutral-300 px-3 py-3 text-sm font-medium transition-colors hover:bg-neutral-100 dark:border-neutral-700 dark:hover:bg-neutral-900"
+              className="w-full rounded-lg border border-border px-3 py-3 text-sm font-medium transition-colors hover:bg-accent"
             >
               {label}
             </button>
@@ -177,14 +177,14 @@ export function RankingWizard({
 
   return (
     <div className="py-8">
-      <p className="text-sm text-neutral-500">Which did you like more?</p>
+      <p className="text-sm text-muted-foreground">Which did you like more?</p>
 
       <div className="mt-8 flex items-start justify-center gap-6">
         <button onClick={() => answer('new')} className="transition-opacity hover:opacity-70">
           <Poster title={title} cover={coverImageUrl} />
         </button>
 
-        <span className="self-center text-sm text-neutral-400">or</span>
+        <span className="self-center text-sm text-muted-foreground">or</span>
 
         <button
           onClick={() => answer('existing')}

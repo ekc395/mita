@@ -159,14 +159,14 @@ export default async function RecsPage() {
     <main className="py-8">
       <div className="flex items-baseline justify-between">
         <h1 className="text-2xl font-semibold">Recommendations</h1>
-        <Link href="/" className="text-sm text-neutral-500 hover:underline">
+        <Link href="/" className="text-sm text-muted-foreground hover:underline">
           Home
         </Link>
       </div>
 
       {inbox.length > 0 && (
         <section className="mt-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-500">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Sent to you
           </h2>
 
@@ -175,12 +175,12 @@ export default async function RecsPage() {
               <Link
                 key={row.id}
                 href={`/anime/${row.anilist_id}`}
-                className="block rounded-lg p-2 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-900"
+                className="block rounded-lg p-2 transition-colors hover:bg-accent"
               >
                 <p className="truncate text-sm font-medium">
                   {row.anime ? animeTitle(row.anime) : 'Untitled'}
                 </p>
-                <p className="truncate text-sm text-neutral-500">
+                <p className="truncate text-sm text-muted-foreground">
                   {fanName(row.profiles)} recommended this
                   {row.note ? ` — "${row.note}"` : ''}
                 </p>
@@ -191,7 +191,7 @@ export default async function RecsPage() {
       )}
 
       {followingIds.length === 0 && inbox.length === 0 && (
-        <p className="mt-6 text-sm text-neutral-500">
+        <p className="mt-6 text-sm text-muted-foreground">
           Recommendations come from people you follow.{' '}
           <Link href="/search" className="underline">
             Find someone to follow.
@@ -200,14 +200,14 @@ export default async function RecsPage() {
       )}
 
       {followingIds.length > 0 && candidates.length === 0 && (
-        <p className="mt-6 text-sm text-neutral-500">
+        <p className="mt-6 text-sm text-muted-foreground">
           Nobody you follow has liked anything yet. Recommendations appear once they start
           ranking.
         </p>
       )}
 
       {candidates.length > 0 && suggestions.length === 0 && (
-        <p className="mt-6 text-sm text-neutral-500">
+        <p className="mt-6 text-sm text-muted-foreground">
           Nothing new right now — you have already logged everything the people you follow
           liked.
         </p>
@@ -218,7 +218,7 @@ export default async function RecsPage() {
           <Link
             key={suggestion.anilist_id}
             href={`/anime/${suggestion.anilist_id}`}
-            className="flex gap-3 rounded-lg p-2 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-900"
+            className="flex gap-3 rounded-lg p-2 transition-colors hover:bg-accent"
           >
             {suggestion.cover_image_url ? (
               <Image
@@ -229,15 +229,15 @@ export default async function RecsPage() {
                 className="h-16 w-12 shrink-0 rounded object-cover"
               />
             ) : (
-              <div className="h-16 w-12 shrink-0 rounded bg-neutral-200 dark:bg-neutral-800" />
+              <div className="h-16 w-12 shrink-0 rounded bg-muted" />
             )}
 
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium">{suggestion.title}</p>
-              <p className="truncate text-sm text-neutral-500">{fansLine(suggestion.fans)}</p>
+              <p className="truncate text-sm text-muted-foreground">{fansLine(suggestion.fans)}</p>
             </div>
 
-            <span className="self-center text-sm tabular-nums text-neutral-500">
+            <span className="self-center text-sm tabular-nums text-muted-foreground">
               {suggestion.averageScore.toFixed(1)}
             </span>
           </Link>

@@ -52,7 +52,7 @@ export default async function SearchPage({
     <main className="py-8">
       <div className="flex items-baseline justify-between">
         <h1 className="text-2xl font-semibold">Search</h1>
-        <Link href="/" className="text-sm text-neutral-500 hover:underline">
+        <Link href="/" className="text-sm text-muted-foreground hover:underline">
           Home
         </Link>
       </div>
@@ -63,19 +63,19 @@ export default async function SearchPage({
           defaultValue={query}
           placeholder="Search anime or people…"
           autoComplete="off"
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-neutral-500 dark:border-neutral-700 dark:bg-transparent"
+          className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-foreground"
         />
       </form>
 
       {!query && (
-        <p className="mt-4 text-sm text-neutral-500">
+        <p className="mt-4 text-sm text-muted-foreground">
           One box for both: search a title to log it, or a username to follow someone.
         </p>
       )}
 
       {(people ?? []).length > 0 && (
         <>
-          <h2 className="mt-6 text-sm font-semibold uppercase tracking-wide text-neutral-500">
+          <h2 className="mt-6 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             People
           </h2>
           <ul className="mt-3 space-y-1">
@@ -83,13 +83,13 @@ export default async function SearchPage({
               <li key={person.username}>
                 <Link
                   href={`/u/${person.username}`}
-                  className="block truncate rounded-lg p-2 text-sm transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-900"
+                  className="block truncate rounded-lg p-2 text-sm transition-colors hover:bg-accent"
                 >
                   <span className="font-medium">
                     {person.display_name ?? `@${person.username}`}
                   </span>
                   {person.display_name && (
-                    <span className="ml-2 text-neutral-500">@{person.username}</span>
+                    <span className="ml-2 text-muted-foreground">@{person.username}</span>
                   )}
                 </Link>
               </li>
@@ -114,7 +114,7 @@ export default async function SearchPage({
       {results.length > 0 && (
         <>
           {/* Headed to match People, so neither section reads as an afterthought. */}
-          <h2 className="mt-6 text-sm font-semibold uppercase tracking-wide text-neutral-500">
+          <h2 className="mt-6 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Anime
           </h2>
           <div className="mt-3 space-y-1">
@@ -130,7 +130,7 @@ export default async function SearchPage({
         !peopleSearchFailed &&
         results.length === 0 &&
         (people ?? []).length === 0 && (
-          <p className="mt-6 text-sm text-neutral-500">
+          <p className="mt-6 text-sm text-muted-foreground">
             Nothing found for “{query}”.
           </p>
         )}

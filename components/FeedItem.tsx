@@ -75,7 +75,7 @@ export function FeedItem({ activity }: { activity: FeedActivity }) {
           className="h-14 w-10 shrink-0 rounded object-cover"
         />
       ) : (
-        <div className="h-14 w-10 shrink-0 rounded bg-neutral-200 dark:bg-neutral-800" />
+        <div className="h-14 w-10 shrink-0 rounded bg-muted" />
       )}
 
       <p className="min-w-0 flex-1 text-sm leading-relaxed">
@@ -92,7 +92,7 @@ export function FeedItem({ activity }: { activity: FeedActivity }) {
             recommended {titleLink} to <ActorLink profile={activity.target} />
           </>
         )}
-        <span className="ml-1 text-neutral-400">· {timeAgo(activity.created_at)}</span>
+        <span className="ml-1 text-muted-foreground">· {timeAgo(activity.created_at)}</span>
       </p>
 
       {activity.score !== null && (

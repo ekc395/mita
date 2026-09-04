@@ -18,7 +18,7 @@ export function AnimeCard({ anime }: { anime: Anime }) {
   return (
     <Link
       href={`/anime/${anime.anilist_id}`}
-      className="flex gap-3 rounded-lg p-2 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-900"
+      className="flex gap-3 rounded-lg p-2 transition-colors hover:bg-accent"
     >
       {anime.cover_image_url ? (
         <Image
@@ -29,14 +29,14 @@ export function AnimeCard({ anime }: { anime: Anime }) {
           className="h-20 w-14 shrink-0 rounded object-cover"
         />
       ) : (
-        <div className="h-20 w-14 shrink-0 rounded bg-neutral-200 dark:bg-neutral-800" />
+        <div className="h-20 w-14 shrink-0 rounded bg-muted" />
       )}
 
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium">{animeTitle(anime)}</p>
-        <p className="mt-0.5 text-sm text-neutral-500">{subtitle(anime)}</p>
+        <p className="mt-0.5 text-sm text-muted-foreground">{subtitle(anime)}</p>
         {anime.average_score !== null && (
-          <p className="mt-1 text-xs text-neutral-400">
+          <p className="mt-1 text-xs text-muted-foreground">
             {anime.average_score}% on AniList
           </p>
         )}

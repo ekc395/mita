@@ -93,7 +93,7 @@ export function RecommendButton({
 
   if (people.length === 0) {
     return (
-      <p className="text-sm text-neutral-500">Follow someone to recommend this to them.</p>
+      <p className="text-sm text-muted-foreground">Follow someone to recommend this to them.</p>
     );
   }
 
@@ -110,7 +110,7 @@ export function RecommendButton({
             setChosenId(event.target.value);
             setSentTo(null);
           }}
-          className="min-w-0 flex-1 rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm disabled:opacity-50 dark:border-neutral-700"
+          className="min-w-0 flex-1 rounded-lg border border-border bg-transparent px-3 py-2 text-sm disabled:opacity-50"
         >
           {people.map((person) => (
             <option key={person.id} value={person.id}>
@@ -122,7 +122,7 @@ export function RecommendButton({
         <button
           onClick={send}
           disabled={pending}
-          className="shrink-0 rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50 dark:bg-white dark:text-neutral-900"
+          className="shrink-0 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {pending ? 'Sending…' : 'Recommend'}
         </button>
@@ -135,10 +135,10 @@ export function RecommendButton({
         // the database rejects a long note only after a round trip.
         maxLength={300}
         placeholder="Add a note (optional)"
-        className="w-full rounded-lg border border-neutral-300 bg-transparent px-3 py-2 text-sm outline-none focus:border-neutral-500 dark:border-neutral-700"
+        className="w-full rounded-lg border border-border bg-transparent px-3 py-2 text-sm outline-none focus:border-foreground"
       />
 
-      {sentTo && <p className="text-sm text-neutral-500">Sent to {sentTo}.</p>}
+      {sentTo && <p className="text-sm text-muted-foreground">Sent to {sentTo}.</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
     </div>
   );
