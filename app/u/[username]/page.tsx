@@ -1,20 +1,17 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
 import { FollowButton } from '@/components/FollowButton';
+import { RankedRow } from '@/components/RankedRow';
+import { WantSection } from '@/components/WantSection';
 import { createClient } from '@/lib/supabase/server';
-import { animeTitle } from '@/lib/types';
+import type { AnimeSummary } from '@/lib/types';
 
 interface ProfileRow {
   anilist_id: number;
   status: string;
   score: number | null;
-  anime: {
-    title_english: string | null;
-    title_romaji: string | null;
-    cover_image_url: string | null;
-  } | null;
+  anime: AnimeSummary | null;
 }
 
 export default async function ProfilePage({
@@ -115,57 +112,12 @@ export default async function ProfilePage({
       {ranked.length > 0 && (
         <ol className="mt-8 space-y-1">
           {ranked.map((row, index) => (
-            <li key={row.anilist_id}>
-              <Link
-                href={`/anime/${row.anilist_id}`}
-                className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-accent"
-              >
-                <span className="w-5 shrink-0 text-sm text-muted-foreground">{index + 1}</span>
-
-                {row.anime?.cover_image_url ? (
-                  <Image
-                    src={row.anime.cover_image_url}
-                    alt=""
-                    width={40}
-                    height={56}
-                    className="h-14 w-10 shrink-0 rounded object-cover"
-                  />
-                ) : (
-                  <div className="h-14 w-10 shrink-0 rounded bg-muted" />
-                )}
-
-                <span className="min-w-0 flex-1 truncate text-sm font-medium">
-                  {row.anime ? animeTitle(row.anime) : 'Unknown'}
-                </span>
-
-                <span className="shrink-0 text-sm font-semibold tabular-nums">
-                  {row.score?.toFixed(1)}
-                </span>
-              </Link>
-            </li>
+            <RankedRow key={row.anilist_id} row={row} position={index + 1} />
           ))}
         </ol>
       )}
 
-      {want.length > 0 && (
-        <>
-          <h2 className="mt-10 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            Want to watch
-          </h2>
-          <ul className="mt-3 space-y-1">
-            {want.map((row) => (
-              <li key={row.anilist_id}>
-                <Link
-                  href={`/anime/${row.anilist_id}`}
-                  className="block truncate rounded-lg p-2 text-sm transition-colors hover:bg-accent"
-                >
-                  {row.anime ? animeTitle(row.anime) : 'Unknown'}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+      <WantSection rows={want} />
     </main>
   );
 }

@@ -1,7 +1,7 @@
-import Image from 'next/image';
 import Link from 'next/link';
 
-import { animeTitle, type ActivityType } from '@/lib/types';
+import { PosterThumb } from '@/components/PosterThumb';
+import { animeTitle, type ActivityType, type AnimeSummary } from '@/lib/types';
 
 interface FeedProfile {
   username: string | null;
@@ -17,11 +17,7 @@ export interface FeedActivity {
   created_at: string;
   actor: FeedProfile | null;
   target: FeedProfile | null;
-  anime: {
-    title_english: string | null;
-    title_romaji: string | null;
-    cover_image_url: string | null;
-  } | null;
+  anime: AnimeSummary | null;
 }
 
 function displayName(profile: FeedProfile | null): string {
@@ -66,17 +62,7 @@ export function FeedItem({ activity }: { activity: FeedActivity }) {
 
   return (
     <li className="flex items-center gap-3 py-3">
-      {activity.anime?.cover_image_url ? (
-        <Image
-          src={activity.anime.cover_image_url}
-          alt=""
-          width={40}
-          height={56}
-          className="h-14 w-10 shrink-0 rounded object-cover"
-        />
-      ) : (
-        <div className="h-14 w-10 shrink-0 rounded bg-muted" />
-      )}
+      <PosterThumb anime={activity.anime} />
 
       <p className="min-w-0 flex-1 text-sm leading-relaxed">
         <ActorLink profile={activity.actor} />{' '}

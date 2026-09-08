@@ -14,6 +14,9 @@ export type Activity = Tables<'activity'>;
 
 export type AnimeInsert = TablesInsert<'anime'>;
 
+/** The anime columns list rows and feed items embed. */
+export type AnimeSummary = Pick<Anime, 'title_english' | 'title_romaji' | 'cover_image_url'>;
+
 export type AnimeStatus = Enums<'anime_status'>;
 export type Sentiment = Enums<'sentiment'>;
 export type ActivityType = Enums<'activity_type'>;
