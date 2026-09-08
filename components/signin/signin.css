@@ -1,0 +1,149 @@
+/* The sign-in world. Deliberately ignores the app's semantic tokens: this
+   route commits to black regardless of scheme, so a `dark:` twin would be
+   wrong rather than missing. */
+
+.signin {
+  /* Breaks out of the root layout's max-w-2xl column -- this route is
+     full-bleed and the clamp would letterbox the collage. */
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* Layer 1 -- the collage bed. Manga is black ink on white, so dropping it on
+   a black ground unaltered gives a white wall; inverting makes the linework
+   glow and the paper recede. */
+.signin-bed {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  filter: invert(1) grayscale(1) contrast(1.45) brightness(0.92);
+  opacity: 0.46; /* bed density -- see components/signin/collage.ts */
+}
+.signin-bed-row { display: flex; flex: 1; }
+.signin-bed-tile { background-size: cover; background-position: 50% 30%; }
+
+/* Keeps the middle clear so the card never sits on top of busy artwork. */
+.signin-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    58% 48% at 50% 50%,
+    #000 0%,
+    rgba(0, 0, 0, 0.72) 46%,
+    rgba(0, 0, 0, 0) 78%
+  );
+}
+
+/* Layer 2 -- the die-cut figures. The supplied art is black linework, which
+   would dissolve into the ground, so each figure is traced with a four-pass
+   white contour. A dark drop shadow would be invisible here. */
+.signin-cut {
+  position: absolute;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  filter:
+    drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
+    drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+    blur(1.1px);
+  opacity: 0.96;
+  z-index: 4;
+}
+
+/* Layer 3 -- the card. */
+.signin-card {
+  font-family: var(--font-gothic), sans-serif;
+  position: relative;
+  z-index: 10;
+  width: 366px;
+  max-width: 100%;
+  background: #fff;
+  color: #0a0a0a;
+  box-shadow: inset 0 0 0 2px #0a0a0a;
+  padding: 34px 32px 30px;
+  text-align: left;
+}
+.signin-wordmark { font-family: var(--font-gothic), sans-serif; font-size: 42px; font-weight: 700; line-height: 1; letter-spacing: 0.02em; margin: 0 0 6px; }
+.signin-reading {
+  font-family: var(--font-mincho), serif;
+  font-size: 12.5px;
+  letter-spacing: 0.34em;
+  color: #55524c;
+  margin: 0 0 28px;
+}
+
+.signin-body { font-size: 13px; line-height: 1.625; margin: 0; }
+
+/* Visually hidden, still announced. */
+.signin-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+.signin-field {
+  width: 100%;
+  font: inherit;
+  font-size: 14px;
+  padding: 10px 2px;
+  outline: none;
+  border: 0;
+  border-bottom: 1.5px solid #0a0a0a;
+  background: transparent;
+  color: #0a0a0a;
+  letter-spacing: 0.03em;
+  margin-bottom: 14px;
+}
+.signin-field::placeholder { color: #6f6a61; }
+.signin-field:focus { border-bottom-width: 3px; }
+.signin-submit {
+  width: 100%;
+  font: inherit;
+  cursor: pointer;
+  background: transparent;
+  color: #0a0a0a;
+  border: 1.5px solid #0a0a0a;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 13px;
+  transition: background 0.18s, color 0.18s;
+}
+.signin-submit:hover:not(:disabled) { background: #0a0a0a; color: #fff; }
+.signin-submit:disabled { opacity: 0.45; cursor: default; }
+.signin-foot { font-size: 10.5px; color: #6a6a6a; margin: 13px 0 0; letter-spacing: 0.03em; }
+
+/* Monochrome has no red to spend, so an error inverts instead: the one solid
+   ink block on a card that is otherwise all hairlines. */
+.signin-error {
+  background: #0a0a0a;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.45;
+  padding: 11px 13px;
+  margin: 14px 0 0;
+}
+
+@media (max-width: 620px) {
+  .signin-card { width: 100%; max-width: 330px; padding: 28px 24px 26px; }
+  /* Scale via a variable: overwriting `transform` outright would drop the
+     per-figure rotation the markup sets alongside it. */
+  .signin-cut { --cut-scale: 0.7; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .signin-submit { transition: none; }
+}
