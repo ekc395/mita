@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
+import { SectionHeading } from '@/components/ui/SectionHeading';
 import { toOne } from '@/lib/supabase/embed';
 import { createClient } from '@/lib/supabase/server';
 import { animeTitle } from '@/lib/types';
@@ -166,9 +167,7 @@ export default async function RecsPage() {
 
       {inbox.length > 0 && (
         <section className="mt-6">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            Sent to you
-          </h2>
+          <SectionHeading>Sent to you</SectionHeading>
 
           <div className="mt-3 space-y-1">
             {inbox.map((row) => (

@@ -5,6 +5,7 @@ import { searchAnime } from '@/lib/anilist';
 import { createClient } from '@/lib/supabase/server';
 import type { Anime } from '@/lib/types';
 import { Input } from '@/components/ui/Input';
+import { SectionHeading } from '@/components/ui/SectionHeading';
 
 /**
  * A GET form against a Server Component, not a client fetch: the query lives in
@@ -75,9 +76,7 @@ export default async function SearchPage({
 
       {(people ?? []).length > 0 && (
         <>
-          <h2 className="mt-6 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            People
-          </h2>
+          <SectionHeading className="mt-6">People</SectionHeading>
           <ul className="mt-3 space-y-1">
             {(people ?? []).map((person) => (
               <li key={person.username}>
@@ -114,9 +113,7 @@ export default async function SearchPage({
       {results.length > 0 && (
         <>
           {/* Headed to match People, so neither section reads as an afterthought. */}
-          <h2 className="mt-6 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            Anime
-          </h2>
+          <SectionHeading className="mt-6">Anime</SectionHeading>
           <div className="mt-3 space-y-1">
             {results.map((anime) => (
               <AnimeCard key={anime.anilist_id} anime={anime} />

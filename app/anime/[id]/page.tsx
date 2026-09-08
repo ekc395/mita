@@ -8,6 +8,7 @@ import { toOne } from '@/lib/supabase/embed';
 import { createClient } from '@/lib/supabase/server';
 import { animeTitle } from '@/lib/types';
 import { buttonClass } from '@/components/ui/Button';
+import { SectionHeading } from '@/components/ui/SectionHeading';
 
 /** A followed user's score for this title. */
 interface FriendRank {
@@ -123,9 +124,7 @@ export default async function AnimeDetailPage({
       </div>
 
       <section className="mt-8">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-          Recommend
-        </h2>
+        <SectionHeading>Recommend</SectionHeading>
         <div className="mt-3">
           <RecommendButton viewerId={user.id} anilistId={anilistId} people={recipients} />
         </div>
@@ -133,14 +132,14 @@ export default async function AnimeDetailPage({
 
       {friends.length > 0 && (
         <section className="mt-8">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          <SectionHeading>
             Friends who ranked this
             {friendAverage !== null && (
               <span className="ml-2 font-normal normal-case tracking-normal">
                 · avg {friendAverage.toFixed(1)}
               </span>
             )}
-          </h2>
+          </SectionHeading>
 
           <ul className="mt-3 space-y-1">
             {friends.map((friend, index) => (
