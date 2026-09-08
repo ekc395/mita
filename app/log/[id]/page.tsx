@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import { animeTitle, type Sentiment } from '@/lib/types';
 
 /** Shape of the joined row below. */
-interface RankedRow {
+interface BucketRow {
   anilist_id: number;
   sentiment: Sentiment | null;
   anime: {
@@ -47,7 +47,7 @@ export default async function LogPage({ params }: { params: Promise<{ id: string
 
   const buckets: Record<Sentiment, BucketEntry[]> = { liked: [], ok: [], disliked: [] };
 
-  for (const row of (data ?? []) as RankedRow[]) {
+  for (const row of (data ?? []) as BucketRow[]) {
     // Exclude the title being ranked: re-ranking must not compare it to itself.
     if (!row.sentiment || row.anilist_id === anilistId || !row.anime) continue;
 
