@@ -7,6 +7,7 @@ import { getAnime } from '@/lib/anilist';
 import { toOne } from '@/lib/supabase/embed';
 import { createClient } from '@/lib/supabase/server';
 import { animeTitle } from '@/lib/types';
+import { buttonClass } from '@/components/ui/Button';
 
 /** A followed user's score for this title. */
 interface FriendRank {
@@ -114,7 +115,7 @@ export default async function AnimeDetailPage({
 
           <Link
             href={`/log/${anilistId}`}
-            className="mt-4 inline-block rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
+            className={buttonClass({ className: 'mt-4 inline-block' })}
           >
             {entry?.score != null ? 'Re-rank' : 'I watched this'}
           </Link>

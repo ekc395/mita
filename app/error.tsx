@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect } from 'react';
+import { Button } from '@/components/ui/Button';
 
 /**
  * Boundary for anything a page throws -- several routes fail loudly by design
@@ -31,12 +32,9 @@ export default function Error({
       )}
 
       <div className="mt-6 flex items-center gap-3">
-        <button
-          onClick={reset}
-          className="rounded-lg border border-border px-3 py-2 text-sm font-medium transition-colors hover:bg-accent"
-        >
+        <Button variant="outline" onClick={reset}>
           Try again
-        </button>
+        </Button>
         <Link href="/" className="text-sm text-muted-foreground hover:underline">
           Home
         </Link>

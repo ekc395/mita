@@ -11,6 +11,7 @@ import {
 } from '@/lib/ranking/place';
 import { createClient } from '@/lib/supabase/client';
 import type { Sentiment } from '@/lib/types';
+import { Button } from '@/components/ui/Button';
 
 /** One already-ranked title, as rendered in a head-to-head. */
 export interface BucketEntry {
@@ -158,13 +159,15 @@ export function RankingWizard({
 
         <div className="mt-6 space-y-2">
           {SENTIMENTS.map(({ value, label }) => (
-            <button
+            <Button
               key={value}
+              variant="outline"
+              size="lg"
               onClick={() => chooseSentiment(value)}
-              className="w-full rounded-lg border border-border px-3 py-3 text-sm font-medium transition-colors hover:bg-accent"
+              className="w-full"
             >
               {label}
-            </button>
+            </Button>
           ))}
         </div>
 

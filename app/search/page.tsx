@@ -4,6 +4,7 @@ import { AnimeCard } from '@/components/AnimeCard';
 import { searchAnime } from '@/lib/anilist';
 import { createClient } from '@/lib/supabase/server';
 import type { Anime } from '@/lib/types';
+import { Input } from '@/components/ui/Input';
 
 /**
  * A GET form against a Server Component, not a client fetch: the query lives in
@@ -58,12 +59,11 @@ export default async function SearchPage({
       </div>
 
       <form action="/search" className="mt-6">
-        <input
+        <Input
           name="q"
           defaultValue={query}
           placeholder="Search anime or people…"
           autoComplete="off"
-          className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-foreground"
         />
       </form>
 

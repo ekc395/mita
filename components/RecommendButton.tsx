@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 
 import { createClient } from '@/lib/supabase/client';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 
 /** Someone the viewer follows, and so may recommend to. */
 export interface Recipient {
@@ -119,23 +121,18 @@ export function RecommendButton({
           ))}
         </select>
 
-        <button
-          onClick={send}
-          disabled={pending}
-          className="shrink-0 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
-        >
+        <Button onClick={send} disabled={pending} className="shrink-0">
           {pending ? 'Sending…' : 'Recommend'}
-        </button>
+        </Button>
       </div>
 
-      <input
+      <Input
         value={note}
         onChange={(event) => setNote(event.target.value)}
         // Matches the recommendations_note_len check added in 0008; without it
         // the database rejects a long note only after a round trip.
         maxLength={300}
         placeholder="Add a note (optional)"
-        className="w-full rounded-lg border border-border bg-transparent px-3 py-2 text-sm outline-none focus:border-foreground"
       />
 
       {sentTo && <p className="text-sm text-muted-foreground">Sent to {sentTo}.</p>}

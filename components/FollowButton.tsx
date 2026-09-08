@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 
 import { createClient } from '@/lib/supabase/client';
+import { Button } from '@/components/ui/Button';
 
 /**
  * Follow / unfollow toggle. viewerId is a prop because follows has no default
@@ -70,17 +71,13 @@ export function FollowButton({
 
   return (
     <div>
-      <button
+      <Button
+        variant={following ? 'outline' : 'solid'}
         onClick={toggle}
         disabled={pending}
-        className={
-          following
-            ? 'rounded-lg border border-border px-3 py-2 text-sm font-medium transition-colors hover:bg-accent disabled:opacity-50'
-            : 'rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50'
-        }
       >
         {following ? 'Following' : 'Follow'}
-      </button>
+      </Button>
 
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
     </div>

@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { createClient } from '@/lib/supabase/client';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
 
 /** Mirrors the profiles_username_format check in 0001_init.sql. */
 const USERNAME_PATTERN = /^[a-z0-9_]{3,20}$/;
@@ -58,22 +60,17 @@ export default function OnboardingPage() {
       </p>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-3">
-        <input
+        <Input
           required
           autoFocus
           value={username}
           onChange={(event) => setUsername(event.target.value.toLowerCase())}
           placeholder="frieren_fan"
-          className="w-full rounded-lg border border-border px-3 py-2 text-sm outline-none focus:border-foreground"
         />
 
-        <button
-          type="submit"
-          disabled={saving}
-          className="w-full rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
-        >
+        <Button type="submit" disabled={saving} className="w-full">
           {saving ? 'Saving…' : 'Continue'}
-        </button>
+        </Button>
 
         {error && <p className="text-sm text-red-600">{error}</p>}
       </form>
