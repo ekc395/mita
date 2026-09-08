@@ -112,7 +112,7 @@ export function RecommendButton({
             setChosenId(event.target.value);
             setSentTo(null);
           }}
-          className="min-w-0 flex-1 rounded-lg border border-border bg-transparent px-3 py-2 text-sm disabled:opacity-50"
+          className="min-w-0 flex-1 rounded-lg border border-border bg-transparent px-3 py-2 text-sm outline-none focus:border-foreground disabled:opacity-50"
         >
           {people.map((person) => (
             <option key={person.id} value={person.id}>
