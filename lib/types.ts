@@ -29,6 +29,14 @@ export type RankedAnime = UserAnime & {
   score: number;
 };
 
+/** The profile columns rows, feed items and pickers embed. */
+export type ProfileSummary = Pick<Profile, 'username' | 'display_name'>;
+
+/** How a person is named anywhere in the UI: display name, then handle, then anonymous. */
+export function profileName(profile: ProfileSummary | null): string {
+  return profile?.display_name ?? (profile?.username ? `@${profile.username}` : 'Someone');
+}
+
 /** Best display title; AniList often has no English one, so romaji is the fallback. */
 export function animeTitle(anime: Pick<Anime, 'title_english' | 'title_romaji'>): string {
   return anime.title_english ?? anime.title_romaji ?? 'Untitled';

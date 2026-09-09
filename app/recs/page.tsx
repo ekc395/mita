@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { toOne } from '@/lib/supabase/embed';
 import { createClient } from '@/lib/supabase/server';
-import { animeTitle } from '@/lib/types';
+import { animeTitle, profileName, type ProfileSummary } from '@/lib/types';
 
 /** Under PostgREST's 1000-row cap, so any truncation is ours, not the server's. */
 const LIKED_ROW_LIMIT = 500;
@@ -19,7 +19,7 @@ interface LikedRow {
     title_romaji: string | null;
     cover_image_url: string | null;
   } | null;
-  profiles: { username: string | null; display_name: string | null } | null;
+  profiles: ProfileSummary | null;
 }
 
 /** A title several people you follow liked, collapsed into one card. */
@@ -29,10 +29,6 @@ interface Suggestion {
   cover_image_url: string | null;
   averageScore: number;
   fans: string[];
-}
-
-function fanName(profile: LikedRow['profiles']): string {
-  return profile?.display_name ?? (profile?.username ? `@${profile.username}` : 'Someone');
 }
 
 /** The fan list is the reason to trust a suggestion, so it leads the subtitle. */
@@ -138,7 +134,7 @@ export default async function RecsPage() {
 
     const entry = byTitle.get(row.anilist_id) ?? { row, scores: [], fans: [] };
     if (row.score !== null) entry.scores.push(row.score);
-    entry.fans.push(fanName(row.profiles));
+    entry.fans.push(profileName(row.profiles));
     byTitle.set(row.anilist_id, entry);
   }
 
@@ -180,7 +176,7 @@ export default async function RecsPage() {
                   {row.anime ? animeTitle(row.anime) : 'Untitled'}
                 </p>
                 <p className="truncate text-sm text-muted-foreground">
-                  {fanName(row.profiles)} recommended this
+                  {profileName(row.profiles)} recommended this
                   {row.note ? ` — "${row.note}"` : ''}
                 </p>
               </Link>

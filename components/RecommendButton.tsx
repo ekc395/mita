@@ -4,18 +4,13 @@ import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 
 import { createClient } from '@/lib/supabase/client';
+import { profileName, type ProfileSummary } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
 /** Someone the viewer follows, and so may recommend to. */
-export interface Recipient {
+export interface Recipient extends ProfileSummary {
   id: string;
-  username: string | null;
-  display_name: string | null;
-}
-
-function recipientName(person: Recipient): string {
-  return person.display_name ?? (person.username ? `@${person.username}` : 'Someone');
 }
 
 /**
@@ -74,13 +69,13 @@ export function RecommendButton({
         // repeat send, which deserves prose rather than a raw Postgres message.
         setError(
           error.code === '23505'
-            ? `You have already recommended this to ${recipient ? recipientName(recipient) : 'them'}.`
+            ? `You have already recommended this to ${recipient ? profileName(recipient) : 'them'}.`
             : error.message,
         );
         return;
       }
 
-      setSentTo(recipient ? recipientName(recipient) : 'them');
+      setSentTo(recipient ? profileName(recipient) : 'them');
       setNote('');
       // A trigger writes the feed row, so the sender's own activity is stale
       // until the server re-renders.
@@ -116,7 +111,7 @@ export function RecommendButton({
         >
           {people.map((person) => (
             <option key={person.id} value={person.id}>
-              {recipientName(person)}
+              {profileName(person)}
             </option>
           ))}
         </select>

@@ -6,14 +6,14 @@ import { RecommendButton, type Recipient } from '@/components/RecommendButton';
 import { getAnime } from '@/lib/anilist';
 import { toOne } from '@/lib/supabase/embed';
 import { createClient } from '@/lib/supabase/server';
-import { animeTitle } from '@/lib/types';
+import { animeTitle, profileName, type ProfileSummary } from '@/lib/types';
 import { buttonClass } from '@/components/ui/Button';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 
 /** A followed user's score for this title. */
 interface FriendRank {
   score: number | null;
-  profiles: { username: string | null; display_name: string | null } | null;
+  profiles: ProfileSummary | null;
 }
 
 export default async function AnimeDetailPage({
@@ -152,7 +152,7 @@ export default async function AnimeDetailPage({
                     href={`/u/${friend.profiles.username}`}
                     className="font-medium hover:underline"
                   >
-                    {friend.profiles.display_name ?? `@${friend.profiles.username}`}
+                    {profileName(friend.profiles)}
                   </Link>
                 ) : (
                   <span className="font-medium">Someone</span>

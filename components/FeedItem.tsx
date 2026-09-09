@@ -1,12 +1,13 @@
 import Link from 'next/link';
 
 import { PosterThumb } from '@/components/PosterThumb';
-import { animeTitle, type ActivityType, type AnimeSummary } from '@/lib/types';
-
-interface FeedProfile {
-  username: string | null;
-  display_name: string | null;
-}
+import {
+  animeTitle,
+  profileName,
+  type ActivityType,
+  type AnimeSummary,
+  type ProfileSummary,
+} from '@/lib/types';
 
 /** One activity row joined to its actor, its target user and its title. */
 export interface FeedActivity {
@@ -15,13 +16,9 @@ export interface FeedActivity {
   anilist_id: number | null;
   score: number | null;
   created_at: string;
-  actor: FeedProfile | null;
-  target: FeedProfile | null;
+  actor: ProfileSummary | null;
+  target: ProfileSummary | null;
   anime: AnimeSummary | null;
-}
-
-function displayName(profile: FeedProfile | null): string {
-  return profile?.display_name ?? (profile?.username ? `@${profile.username}` : 'Someone');
 }
 
 /**
@@ -37,8 +34,8 @@ function timeAgo(iso: string): string {
   return `${Math.floor(seconds / 604800)}w`;
 }
 
-function ActorLink({ profile }: { profile: FeedProfile | null }) {
-  const name = displayName(profile);
+function ActorLink({ profile }: { profile: ProfileSummary | null }) {
+  const name = profileName(profile);
   if (!profile?.username) return <span className="font-medium">{name}</span>;
 
   return (
