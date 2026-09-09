@@ -6,7 +6,7 @@ import { useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { profileName, type ProfileSummary } from '@/lib/types';
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { Input, inputClass } from '@/components/ui/Input';
 
 /** Someone the viewer follows, and so may recommend to. */
 export interface Recipient extends ProfileSummary {
@@ -107,7 +107,7 @@ export function RecommendButton({
             setChosenId(event.target.value);
             setSentTo(null);
           }}
-          className="min-w-0 flex-1 rounded-lg border border-border bg-transparent px-3 py-2 text-sm outline-none focus:border-foreground disabled:opacity-50"
+          className={inputClass('min-w-0 flex-1 disabled:opacity-50')}
         >
           {people.map((person) => (
             <option key={person.id} value={person.id}>
