@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
+import { subtitle } from '@/components/AnimeCard';
 import { RecommendButton, type Recipient } from '@/components/RecommendButton';
 import { getAnime } from '@/lib/anilist';
 import { toOne } from '@/lib/supabase/embed';
@@ -102,11 +103,7 @@ export default async function AnimeDetailPage({
           {anime.title_romaji && anime.title_english && (
             <p className="mt-1 text-sm text-muted-foreground">{anime.title_romaji}</p>
           )}
-          <p className="mt-2 text-sm text-muted-foreground">
-            {[anime.format, anime.season_year, anime.episodes && `${anime.episodes} eps`]
-              .filter(Boolean)
-              .join(' · ')}
-          </p>
+          <p className="mt-2 text-sm text-muted-foreground">{subtitle(anime)}</p>
 
           {entry?.score != null ? (
             <p className="mt-3 text-sm font-medium">Your score: {entry.score}</p>

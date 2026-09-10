@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { animeTitle, type Anime } from '@/lib/types';
 
 /** Compact metadata line: "TV · 2023 · 28 eps", skipping whatever is missing. */
-function subtitle(anime: Anime): string {
+export function subtitle(anime: Anime): string {
   return [
     anime.format,
     anime.season_year,
