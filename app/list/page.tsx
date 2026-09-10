@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-import { RankedRow } from '@/components/RankedRow';
+import { RankedList } from '@/components/RankedList';
 import { WantSection } from '@/components/WantSection';
 import { createClient } from '@/lib/supabase/server';
 import type { AnimeSummary, Sentiment } from '@/lib/types';
@@ -57,13 +57,7 @@ export default async function ListPage() {
         </p>
       )}
 
-      {ranked.length > 0 && (
-        <ol className="mt-6 space-y-1">
-          {ranked.map((row, index) => (
-            <RankedRow key={row.anilist_id} row={row} position={index + 1} />
-          ))}
-        </ol>
-      )}
+      <RankedList rows={ranked} className="mt-6" />
 
       <WantSection rows={want} />
     </main>

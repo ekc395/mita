@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 
 import { FollowButton } from '@/components/FollowButton';
-import { RankedRow } from '@/components/RankedRow';
+import { RankedList } from '@/components/RankedList';
 import { WantSection } from '@/components/WantSection';
 import { createClient } from '@/lib/supabase/server';
 import type { AnimeSummary } from '@/lib/types';
@@ -109,13 +109,7 @@ export default async function ProfilePage({
         </p>
       )}
 
-      {ranked.length > 0 && (
-        <ol className="mt-8 space-y-1">
-          {ranked.map((row, index) => (
-            <RankedRow key={row.anilist_id} row={row} position={index + 1} />
-          ))}
-        </ol>
-      )}
+      <RankedList rows={ranked} className="mt-8" />
 
       <WantSection rows={want} />
     </main>
