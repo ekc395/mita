@@ -36,7 +36,7 @@ export default async function SearchPage({
   // People matching the same box. profiles_select applies can_view_user(), so
   // private profiles the viewer does not follow never appear here.
   const supabase = await createClient();
-  const { data: people, error: peopleError } = query
+  const { data: peopleRows, error: peopleError } = query
     ? await supabase
         .from('profiles')
         .select('username, display_name')
@@ -44,6 +44,8 @@ export default async function SearchPage({
         .ilike('username', `%${query}%`)
         .limit(5)
     : { data: [], error: null };
+
+  const people = peopleRows ?? [];
 
   // supabase-js returns { data: null, error } instead of throwing, so an
   // unchecked failure here would render as "nothing found" too.
@@ -74,11 +76,11 @@ export default async function SearchPage({
         </p>
       )}
 
-      {(people ?? []).length > 0 && (
+      {people.length > 0 && (
         <>
           <SectionHeading className="mt-6">People</SectionHeading>
           <ul className="mt-3 space-y-1">
-            {(people ?? []).map((person) => (
+            {people.map((person) => (
               <li key={person.username}>
                 <Link
                   href={`/u/${person.username}`}
@@ -126,7 +128,7 @@ export default async function SearchPage({
         !titleSearchFailed &&
         !peopleSearchFailed &&
         results.length === 0 &&
-        (people ?? []).length === 0 && (
+        people.length === 0 && (
           <p className="mt-6 text-sm text-muted-foreground">
             Nothing found for “{query}”.
           </p>

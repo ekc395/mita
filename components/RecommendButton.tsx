@@ -28,7 +28,7 @@ export function RecommendButton({
   people: Recipient[];
 }) {
   const router = useRouter();
-  const [chosenId, setChosenId] = useState(people[0]?.id ?? '');
+  const [chosenId, setChosenId] = useState('');
 
   // `people` can change under us -- router.refresh() after a send re-renders with
   // whatever the follow set is now. Deriving rather than trusting state keeps the

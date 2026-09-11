@@ -64,8 +64,6 @@ export function RankingWizard({
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const bucket = sentiment ? buckets[sentiment] : [];
-
   // State updates are not synchronous: two clicks in one tick would both read
   // the same `placement`, and the second would drop the first's answer.
   const busy = useRef(false);
@@ -176,7 +174,7 @@ export function RankingWizard({
     );
   }
 
-  const opponent = bucket[placement.probe];
+  const opponent = buckets[sentiment][placement.probe];
 
   return (
     <div className="py-8">

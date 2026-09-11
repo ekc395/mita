@@ -117,7 +117,7 @@ export default async function RecsPage() {
 
   // Collapse per title: agreement is the signal, and the fan list is what makes
   // a suggestion legible.
-  const byTitle = new Map<number, { row: LikedRow; scores: number[]; fans: string[] }>();
+  const byTitle = new Map<number, { anime: AnimeSummary; scores: number[]; fans: string[] }>();
 
   for (const raw of liked.data ?? []) {
     const row: LikedRow = {
@@ -128,17 +128,17 @@ export default async function RecsPage() {
 
     if (!row.anime || alreadyLogged.has(row.anilist_id)) continue;
 
-    const entry = byTitle.get(row.anilist_id) ?? { row, scores: [], fans: [] };
+    const entry = byTitle.get(row.anilist_id) ?? { anime: row.anime, scores: [], fans: [] };
     if (row.score !== null) entry.scores.push(row.score);
     entry.fans.push(profileName(row.profiles));
     byTitle.set(row.anilist_id, entry);
   }
 
-  const suggestions: Suggestion[] = [...byTitle.values()]
-    .map(({ row, scores, fans }) => ({
-      anilist_id: row.anilist_id,
-      title: animeTitle(row.anime!),
-      cover_image_url: row.anime!.cover_image_url,
+  const suggestions: Suggestion[] = [...byTitle.entries()]
+    .map(([anilist_id, { anime, scores, fans }]) => ({
+      anilist_id,
+      title: animeTitle(anime),
+      cover_image_url: anime.cover_image_url,
       averageScore: scores.length
         ? scores.reduce((sum, score) => sum + score, 0) / scores.length
         : 0,
