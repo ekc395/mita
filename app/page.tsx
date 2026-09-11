@@ -16,20 +16,17 @@ export default async function HomePage() {
   // and covers the gap if the matcher ever stops covering this route.
   if (!user) redirect('/login');
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('username, display_name')
-    .eq('id', user.id)
-    .maybeSingle();
+  // An un-onboarded user pays for a discarded follows query -- once, on a path
+  // that redirects anyway.
+  const [{ data: profile }, { data: following }] = await Promise.all([
+    supabase.from('profiles').select('username, display_name').eq('id', user.id).maybeSingle(),
+    supabase.from('follows').select('following_id').eq('follower_id', user.id),
+  ]);
 
   if (!profile?.username) redirect('/onboarding');
 
   // activity's RLS predicate can_view_user() also admits every public profile,
   // so without an explicit user filter this renders a global feed.
-  const { data: following } = await supabase
-    .from('follows')
-    .select('following_id')
-    .eq('follower_id', user.id);
 
   const authorIds = [user.id, ...(following ?? []).map((row) => row.following_id)];
 

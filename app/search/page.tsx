@@ -19,32 +19,31 @@ export default async function SearchPage({
   const { q = '' } = await searchParams;
   const query = q.trim();
 
-  // People search is Postgres and survives an AniList outage, so catch here
-  // rather than failing the whole route. Covers the cache write too, hence the
-  // neutral wording.
-  let results: Anime[] = [];
-  let titleSearchFailed = false;
-  if (query) {
-    try {
-      results = await searchAnime(query);
-    } catch (error) {
-      console.error(error);
-      titleSearchFailed = true;
-    }
-  }
-
-  // People matching the same box. profiles_select applies can_view_user(), so
-  // private profiles the viewer does not follow never appear here.
+  // Catch here, not at the route: people search is Postgres and survives an
+  // AniList outage. Neutral wording covers the cache write too; null signals
+  // failure, [] an empty result.
+  //
+  // profiles_select applies can_view_user(), so private profiles never appear.
   const supabase = await createClient();
-  const { data: peopleRows, error: peopleError } = query
-    ? await supabase
-        .from('profiles')
-        .select('username, display_name')
-        .not('username', 'is', null)
-        .ilike('username', `%${query}%`)
-        .limit(5)
-    : { data: [], error: null };
+  const [titleResults, { data: peopleRows, error: peopleError }] = await Promise.all([
+    query
+      ? searchAnime(query).catch((error) => {
+          console.error(error);
+          return null;
+        })
+      : Promise.resolve<Anime[]>([]),
+    query
+      ? supabase
+          .from('profiles')
+          .select('username, display_name')
+          .not('username', 'is', null)
+          .ilike('username', `%${query}%`)
+          .limit(5)
+      : { data: [], error: null },
+  ]);
 
+  const titleSearchFailed = titleResults === null;
+  const results = titleResults ?? [];
   const people = peopleRows ?? [];
 
   // supabase-js returns { data: null, error } instead of throwing, so an

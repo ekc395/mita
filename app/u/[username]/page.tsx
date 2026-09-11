@@ -22,19 +22,24 @@ export default async function ProfilePage({
   const { username } = await params;
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // profiles_select applies can_view_user(), so a private profile is
+  // indistinguishable from a nonexistent one -- the intent. It scopes from the
+  // cookie, not from getUser().
+  const [
+    {
+      data: { user },
+    },
+    { data: profile },
+  ] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase
+      .from('profiles')
+      .select('id, username, display_name, bio')
+      .eq('username', username)
+      .maybeSingle(),
+  ]);
+
   if (!user) redirect('/login');
-
-  // profiles_select applies can_view_user(), so a private profile reads as no
-  // rows -- indistinguishable from nonexistent, which is the intent.
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id, username, display_name, bio')
-    .eq('username', username)
-    .maybeSingle();
-
   if (!profile) notFound();
 
   const isSelf = profile.id === user.id;

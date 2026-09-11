@@ -46,27 +46,28 @@ export default async function RecsPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: following, error: followingError } = await supabase
-    .from('follows')
-    .select('following_id')
-    .eq('follower_id', user.id);
+  // recommendations_select already limits rows to sender and recipient; the
+  // to_user filter is what makes this the inbox rather than both directions.
+  const [
+    { data: following, error: followingError },
+    { data: inboxRows, error: inboxError },
+  ] = await Promise.all([
+    supabase.from('follows').select('following_id').eq('follower_id', user.id),
+    supabase
+      .from('recommendations')
+      .select(
+        'id, note, created_at, anilist_id, profiles!recommendations_from_user_fkey(username, display_name), anime(title_english, title_romaji, cover_image_url)',
+      )
+      .eq('to_user', user.id)
+      .order('created_at', { ascending: false })
+      .limit(50),
+  ]);
 
   if (followingError) {
     throw new Error(`Could not load who you follow: ${followingError.message}`);
   }
 
   const followingIds = (following ?? []).map((row) => row.following_id);
-
-  // recommendations_select already limits rows to sender and recipient; the
-  // to_user filter is what makes this the inbox rather than both directions.
-  const { data: inboxRows, error: inboxError } = await supabase
-    .from('recommendations')
-    .select(
-      'id, note, created_at, anilist_id, profiles!recommendations_from_user_fkey(username, display_name), anime(title_english, title_romaji, cover_image_url)',
-    )
-    .eq('to_user', user.id)
-    .order('created_at', { ascending: false })
-    .limit(50);
 
   if (inboxError) {
     throw new Error(`Could not load your recommendations: ${inboxError.message}`);

@@ -27,29 +27,32 @@ export default async function AnimeDetailPage({
 
   if (!Number.isInteger(anilistId)) notFound();
 
-  const anime = await getAnime(anilistId);
-  if (!anime) notFound();
-
+  // getAnime may hit AniList on a stale cache; auth need not queue behind it.
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const [
+    anime,
+    {
+      data: { user },
+    },
+  ] = await Promise.all([getAnime(anilistId), supabase.auth.getUser()]);
+
+  if (!anime) notFound();
   if (!user) redirect('/login');
 
-  // user_anime is readable for anyone can_view_user() admits, so this needs an
-  // explicit user filter or it matches other people's rows too.
-  const { data: entry } = await supabase
-    .from('user_anime')
-    .select('status, score')
-    .eq('anilist_id', anilistId)
-    .eq('user_id', user.id)
-    .maybeSingle();
-
-  // follows has two FKs into profiles, so the embed must name the constraint.
-  const { data: following, error: followingError } = await supabase
-    .from('follows')
-    .select('following_id, profiles!follows_following_id_fkey(id, username, display_name)')
-    .eq('follower_id', user.id);
+  // user_anime is readable for anyone can_view_user() admits, hence the user
+  // filter. follows has two FKs into profiles, so the embed must name one.
+  const [{ data: entry }, { data: following, error: followingError }] = await Promise.all([
+    supabase
+      .from('user_anime')
+      .select('status, score')
+      .eq('anilist_id', anilistId)
+      .eq('user_id', user.id)
+      .maybeSingle(),
+    supabase
+      .from('follows')
+      .select('following_id, profiles!follows_following_id_fkey(id, username, display_name)')
+      .eq('follower_id', user.id),
+  ]);
 
   if (followingError) {
     throw new Error(`Could not load who you follow: ${followingError.message}`);
