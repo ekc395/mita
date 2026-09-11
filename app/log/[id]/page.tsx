@@ -3,17 +3,13 @@ import { notFound, redirect } from 'next/navigation';
 import { RankingWizard, type BucketEntry } from '@/components/RankingWizard';
 import { getAnime } from '@/lib/anilist';
 import { createClient } from '@/lib/supabase/server';
-import { animeTitle, type Sentiment } from '@/lib/types';
+import { animeTitle, type AnimeSummary, type Sentiment } from '@/lib/types';
 
 /** Shape of the joined row below. */
 interface BucketRow {
   anilist_id: number;
   sentiment: Sentiment | null;
-  anime: {
-    title_english: string | null;
-    title_romaji: string | null;
-    cover_image_url: string | null;
-  } | null;
+  anime: AnimeSummary | null;
 }
 
 export default async function LogPage({ params }: { params: Promise<{ id: string }> }) {

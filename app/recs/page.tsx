@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { toOne } from '@/lib/supabase/embed';
 import { createClient } from '@/lib/supabase/server';
-import { animeTitle, profileName, type ProfileSummary } from '@/lib/types';
+import { animeTitle, profileName, type AnimeSummary, type ProfileSummary } from '@/lib/types';
 
 /** Under PostgREST's 1000-row cap, so any truncation is ours, not the server's. */
 const LIKED_ROW_LIMIT = 500;
@@ -14,11 +14,7 @@ const LIKED_ROW_LIMIT = 500;
 interface LikedRow {
   anilist_id: number;
   score: number | null;
-  anime: {
-    title_english: string | null;
-    title_romaji: string | null;
-    cover_image_url: string | null;
-  } | null;
+  anime: AnimeSummary | null;
   profiles: ProfileSummary | null;
 }
 
