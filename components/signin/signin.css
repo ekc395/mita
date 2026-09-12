@@ -8,56 +8,44 @@
   position: fixed;
   inset: 0;
   overflow: hidden;
-  background: #000;
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
 }
 
-/* Layer 1 -- the collage bed. Manga is black ink on white, so dropping it on
-   a black ground unaltered gives a white wall; inverting makes the linework
-   glow and the paper recede. */
+/* Layer 1 -- the bed. Black ink on white paper needs no inversion on a white
+   ground; dimming to a grey wash is enough. */
 .signin-bed {
   position: absolute;
   inset: 0;
-  display: flex;
-  flex-direction: column;
-  filter: invert(1) grayscale(1) contrast(1.45) brightness(0.92);
-  opacity: 0.46; /* bed density -- see components/signin/collage.ts */
+  filter: grayscale(1) contrast(1.08);
+  opacity: 0.38;
 }
-.signin-bed-row { display: flex; flex: 1; }
-.signin-bed-tile { background-size: cover; background-position: 50% 30%; }
 
-/* Keeps the middle clear so the card never sits on top of busy artwork. */
+/* Sized by aspect rather than cropped, so gutters survive; the hairline is
+   what makes a page read as a page and not as more texture. */
+.signin-sheet-page {
+  position: absolute;
+  background-size: cover;
+  background-position: 50% 20%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18);
+}
+
+/* Keeps the middle clear so the card never sits on busy artwork. */
 .signin-vignette {
   position: absolute;
   inset: 0;
   background: radial-gradient(
-    58% 48% at 50% 50%,
-    #000 0%,
-    rgba(0, 0, 0, 0.72) 46%,
-    rgba(0, 0, 0, 0) 78%
+    52% 44% at 50% 50%,
+    #fff 0%,
+    rgba(255, 255, 255, 0.76) 48%,
+    rgba(255, 255, 255, 0) 76%
   );
 }
 
-/* Layer 2 -- the die-cut figures. The supplied art is black linework, which
-   would dissolve into the ground, so each figure is traced with a four-pass
-   white contour. A dark drop shadow would be invisible here. */
-.signin-cut {
-  position: absolute;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
-  filter:
-    drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
-    drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
-    blur(1.1px);
-  opacity: 0.96;
-  z-index: 4;
-}
-
-/* Layer 3 -- the card. */
+/* Layer 2 -- the card. */
 .signin-card {
   font-family: var(--font-gothic), sans-serif;
   position: relative;
@@ -66,7 +54,7 @@
   max-width: 100%;
   background: #fff;
   color: #0a0a0a;
-  box-shadow: inset 0 0 0 2px #0a0a0a;
+  box-shadow: inset 0 0 0 2px #0a0a0a, 0 20px 54px -20px rgba(0, 0, 0, 0.38);
   padding: 34px 32px 30px;
   text-align: left;
 }
@@ -140,9 +128,9 @@
 
 @media (max-width: 620px) {
   .signin-card { width: 100%; max-width: 330px; padding: 28px 24px 26px; }
-  /* Scale via a variable: overwriting `transform` outright would drop the
-     per-figure rotation the markup sets alongside it. */
-  .signin-cut { --cut-scale: 0.7; }
+  /* vw widths already shrink with the viewport; this only restores the
+     larger relative page size the old fixed-px layout had on phones. */
+  .signin-sheet-page { --sheet-scale: 1.45; }
 }
 @media (prefers-reduced-motion: reduce) {
   .signin-submit { transition: none; }
